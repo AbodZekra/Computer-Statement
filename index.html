@@ -347,6 +347,78 @@
             cursor: pointer;
         }
 
+        /* القائمة السياقية للهاتف */
+        .context-menu {
+            position: fixed;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 10px 0;
+            box-shadow: var(--shadow);
+            z-index: 1000;
+            display: none;
+            min-width: 150px;
+            direction: rtl;
+        }
+
+        .context-menu button {
+            width: 100%;
+            background: none;
+            border: none;
+            padding: 12px 20px;
+            text-align: right;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--dark);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .context-menu button:hover {
+            background: rgba(67, 97, 238, 0.1);
+        }
+
+        .context-menu button i {
+            font-size: 1rem;
+            color: var(--primary);
+        }
+
+        .context-menu .delete-btn {
+            color: var(--danger);
+        }
+
+        .context-menu .delete-btn i {
+            color: var(--danger);
+        }
+
+        /* زر وضع الهاتف */
+        .mobile-mode-btn {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+            z-index: 100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .mobile-mode-btn.active {
+            background: var(--warning);
+            animation: pulse 2s infinite;
+        }
+
         /* تأثيرات للرسوم المتحركة */
         @keyframes pulse {
             0% { box-shadow: 0 0 0 0 rgba(67, 97, 238, 0.7); }
@@ -411,6 +483,10 @@
             .node-item {
                 padding: 10px;
             }
+            
+            .mobile-mode-btn {
+                display: flex;
+            }
         }
 
         @media (max-width: 480px) and (orientation: landscape) {
@@ -460,6 +536,10 @@
             .info-panel {
                 width: 90%;
                 padding: 15px;
+            }
+            
+            .mobile-mode-btn {
+                display: flex;
             }
         }
 
@@ -578,6 +658,27 @@
         </div>
     </div>
 
+    <!-- القائمة السياقية للهاتف -->
+    <div class="context-menu" id="context-menu">
+        <button id="node-info-btn">
+            <i class="fas fa-info-circle"></i> معلومات العقدة
+        </button>
+        <button id="connect-node-btn">
+            <i class="fas fa-link"></i> توصيل العقدة
+        </button>
+        <button id="delete-node-btn" class="delete-btn">
+            <i class="fas fa-trash"></i> حذف العقدة
+        </button>
+        <button id="delete-edge-btn" class="delete-btn">
+            <i class="fas fa-unlink"></i> حذف الوصلة
+        </button>
+    </div>
+
+    <!-- زر وضع الهاتف -->
+    <button class="mobile-mode-btn" id="mobile-mode-btn">
+        <i class="fas fa-mobile-alt"></i>
+    </button>
+
     <!-- SVG للأسهم -->
     <svg style="position: absolute; width: 0; height: 0;">
         <defs>
@@ -601,7 +702,10 @@
             dragOffsetX: 0,
             dragOffsetY: 0,
             activeTouch: null,
-            isAddingNode: false
+            isAddingNode: false,
+            mobileMode: false,
+            contextMenuTarget: null,
+            contextMenuType: null // 'node' أو 'edge'
         };
 
         // العناصر الرئيسية
@@ -611,6 +715,8 @@
         const infoPanel = document.querySelector('.info-panel');
         const closeBtn = document.querySelector('.close-btn');
         const nodesInfoContainer = document.getElementById('nodes-info-container');
+        const contextMenu = document.getElementById('context-menu');
+        const mobileModeBtn = document.getElementById('mobile-mode-btn');
 
         // مؤشر السحب
         const dragIndicator = document.createElement('div');
@@ -626,8 +732,20 @@
             // إضافة مستمعي الأحداث
             setupEventListeners();
             
+            // الكشف عن نوع الجهاز
+            detectDeviceType();
+            
             // رسم اللوحة
             draw();
+        }
+
+        // الكشف عن نوع الجهاز
+        function detectDeviceType() {
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            if (isMobile) {
+                state.mobileMode = true;
+                mobileModeBtn.classList.add('active');
+            }
         }
 
         // تغيير حجم اللوحة
@@ -676,6 +794,97 @@
             document.getElementById('bfs-btn').addEventListener('click', runBFS);
             document.getElementById('complement-btn').addEventListener('click', createComplement);
             document.getElementById('clear-btn').addEventListener('click', clearGraph);
+
+            // أحداث القائمة السياقية
+            document.getElementById('node-info-btn').addEventListener('click', handleNodeInfo);
+            document.getElementById('connect-node-btn').addEventListener('click', handleConnectNode);
+            document.getElementById('delete-node-btn').addEventListener('click', handleDeleteNode);
+            document.getElementById('delete-edge-btn').addEventListener('click', handleDeleteEdge);
+
+            // زر وضع الهاتف
+            mobileModeBtn.addEventListener('click', toggleMobileMode);
+
+            // إغلاق القائمة السياقية عند النقر خارجها
+            document.addEventListener('click', (e) => {
+                if (!contextMenu.contains(e.target)) {
+                    hideContextMenu();
+                }
+            });
+        }
+
+        // تبديل وضع الهاتف
+        function toggleMobileMode() {
+            state.mobileMode = !state.mobileMode;
+            mobileModeBtn.classList.toggle('active', state.mobileMode);
+            
+            if (state.mobileMode) {
+                mobileModeBtn.innerHTML = '<i class="fas fa-mobile-alt"></i>';
+            } else {
+                mobileModeBtn.innerHTML = '<i class="fas fa-desktop"></i>';
+            }
+        }
+
+        // إظهار القائمة السياقية
+        function showContextMenu(x, y, type, target) {
+            state.contextMenuTarget = target;
+            state.contextMenuType = type;
+            
+            // ضبط موقع القائمة
+            contextMenu.style.left = `${x}px`;
+            contextMenu.style.top = `${y}px`;
+            contextMenu.style.display = 'block';
+            
+            // إظهار الأزرار المناسبة حسب النوع
+            document.getElementById('node-info-btn').style.display = type === 'node' ? 'flex' : 'none';
+            document.getElementById('connect-node-btn').style.display = type === 'node' ? 'flex' : 'none';
+            document.getElementById('delete-node-btn').style.display = type === 'node' ? 'flex' : 'none';
+            document.getElementById('delete-edge-btn').style.display = type === 'edge' ? 'flex' : 'none';
+        }
+
+        // إخفاء القائمة السياقية
+        function hideContextMenu() {
+            contextMenu.style.display = 'none';
+            state.contextMenuTarget = null;
+            state.contextMenuType = null;
+        }
+
+        // معالجة معلومات العقدة من القائمة السياقية
+        function handleNodeInfo() {
+            if (state.contextMenuType === 'node') {
+                showNodeInfo(state.contextMenuTarget);
+                hideContextMenu();
+            }
+        }
+
+        // معالجة توصيل العقدة من القائمة السياقية
+        function handleConnectNode() {
+            if (state.contextMenuType === 'node') {
+                if (state.selectedNode && state.selectedNode !== state.contextMenuTarget) {
+                    addEdge(state.selectedNode, state.contextMenuTarget);
+                    state.selectedNode = null;
+                } else {
+                    state.selectedNode = state.contextMenuTarget;
+                }
+                draw();
+                updateNodesInfo();
+                hideContextMenu();
+            }
+        }
+
+        // معالجة حذف العقدة من القائمة السياقية
+        function handleDeleteNode() {
+            if (state.contextMenuType === 'node') {
+                deleteNode(state.contextMenuTarget);
+                hideContextMenu();
+            }
+        }
+
+        // معالجة حذف الوصلة من القائمة السياقية
+        function handleDeleteEdge() {
+            if (state.contextMenuType === 'edge') {
+                deleteEdge(state.contextMenuTarget);
+                hideContextMenu();
+            }
         }
 
         // توليد اسم عقدة جديد
@@ -828,24 +1037,48 @@
             const y = touch.clientY - rect.top;
             
             const clickedNode = findNodeAt(x, y);
+            const clickedEdge = findEdgeAt(x, y);
             
-            if (clickedNode) {
-                state.activeTouch = {
-                    type: 'canvas',
-                    node: clickedNode,
-                    identifier: touch.identifier,
-                    startX: x,
-                    startY: y
-                };
-                
-                // بدء سحب العقدة
-                state.isDraggingNode = true;
-                state.dragNode = clickedNode;
-                state.dragOffsetX = x - clickedNode.x;
-                state.dragOffsetY = y - clickedNode.y;
+            if (state.mobileMode) {
+                // في وضع الهاتف، نعرض القائمة السياقية بدلاً من التنفيذ المباشر
+                if (clickedNode) {
+                    state.activeTouch = {
+                        type: 'canvas',
+                        node: clickedNode,
+                        identifier: touch.identifier,
+                        startX: x,
+                        startY: y
+                    };
+                    
+                    // عرض القائمة السياقية للعقدة
+                    showContextMenu(touch.clientX, touch.clientY, 'node', clickedNode);
+                } else if (clickedEdge) {
+                    // عرض القائمة السياقية للوصلة
+                    showContextMenu(touch.clientX, touch.clientY, 'edge', clickedEdge);
+                } else {
+                    // النقر على منطقة فارغة - إخفاء القائمة السياقية
+                    hideContextMenu();
+                }
             } else {
-                // النقر على منطقة فارغة
-                handleCanvasClick({ clientX: touch.clientX, clientY: touch.clientY });
+                // في وضع الكمبيوتر، نستخدم السلوك الأصلي
+                if (clickedNode) {
+                    state.activeTouch = {
+                        type: 'canvas',
+                        node: clickedNode,
+                        identifier: touch.identifier,
+                        startX: x,
+                        startY: y
+                    };
+                    
+                    // بدء سحب العقدة
+                    state.isDraggingNode = true;
+                    state.dragNode = clickedNode;
+                    state.dragOffsetX = x - clickedNode.x;
+                    state.dragOffsetY = y - clickedNode.y;
+                } else {
+                    // النقر على منطقة فارغة
+                    handleCanvasClick({ clientX: touch.clientX, clientY: touch.clientY });
+                }
             }
         }
 
@@ -892,8 +1125,8 @@
                 state.dragNode = null;
                 updateAdjacencyMatrix();
                 updateNodesInfo();
-            } else {
-                // معالجة النقر العادي
+            } else if (!state.mobileMode) {
+                // معالجة النقر العادي (في وضع الكمبيوتر فقط)
                 handleCanvasClick({ clientX: touch.clientX, clientY: touch.clientY });
             }
             
@@ -1403,6 +1636,7 @@
             updateAdjacencyMatrix();
             updateNodesInfo();
             infoPanel.style.display = 'none';
+            hideContextMenu();
             draw();
         }
 
