@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>نظرية البيان - تطبيق تفاعلي</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --accent: #4895ef;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --warning: #f8961e;
+            --info: #4ea8de;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: var(--light);
+            min-height: 100vh;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            padding: 15px;
+            gap: 15px;
+        }
+
+        /* القائمة الجانبية */
+        .sidebar {
+            width: 250px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            min-width: 200px;
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--light);
+            font-size: 1.5rem;
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 10px;
+        }
+
+        .node-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .node-item {
+            background: var(--primary);
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+            cursor: grab;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            touch-action: none;
+        }
+
+        .node-item:hover {
+            background: var(--secondary);
+            transform: translateY(-3px);
+        }
+
+        .node-item i {
+            font-size: 1.2rem;
+        }
+
+        /* اللوحة الرئيسية */
+        .main-panel {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            min-width: 400px;
+        }
+
+        #graph-canvas {
+            width: 100%;
+            height: 100%;
+            cursor: default;
+            touch-action: none;
+        }
+
+        /* لوحة مصفوفة التجاور */
+        .matrix-panel {
+            width: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            min-width: 250px;
+        }
+
+        .matrix-panel h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--light);
+            font-size: 1.5rem;
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 10px;
+        }
+
+        #adjacency-matrix {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            overflow: auto;
+            font-family: monospace;
+            font-size: 1.1rem;
+            text-align: center;
+            direction: ltr;
+        }
+
+        .matrix-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: center;
+            direction: ltr;
+        }
+
+        .matrix-table th, .matrix-table td {
+            padding: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            min-width: 30px;
+        }
+
+        .matrix-table th {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .matrix-table .diagonal {
+            background: rgba(76, 201, 240, 0.3);
+        }
+
+        /* شريط الأدوات */
+        .toolbar {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 50px;
+            padding: 10px 20px;
+            display: flex;
+            gap: 10px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            z-index: 100;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 90%;
+        }
+
+        .toolbar button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: var(--shadow);
+            white-space: nowrap;
+            touch-action: manipulation;
+        }
+
+        .toolbar button:hover {
+            background: var(--secondary);
+            transform: translateY(-3px);
+        }
+
+        .toolbar button i {
+            font-size: 1.1rem;
+        }
+
+        /* نافذة المعلومات */
+        .info-panel {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            width: 80%;
+            max-width: 500px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: none;
+            z-index: 100;
+        }
+
+        .info-panel h3 {
+            margin-bottom: 15px;
+            color: var(--light);
+            text-align: center;
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 10px;
+        }
+
+        .info-content {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            left: 15px;
+            background: none;
+            border: none;
+            color: var(--light);
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        /* العقد والوصلات */
+        .node {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 0 10px var(--primary);
+            transition: var(--transition);
+            z-index: 10;
+        }
+
+        .node:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 15px var(--accent);
+        }
+
+        .edge {
+            position: absolute;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .edge-line {
+            stroke: var(--accent);
+            stroke-width: 3;
+            marker-end: url(#arrowhead);
+        }
+
+        /* تأثيرات للرسوم المتحركة */
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(67, 97, 238, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(67, 97, 238, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(67, 97, 238, 0); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        /* تأثيرات الاستجابة */
+        @media (max-width: 1200px) {
+            .container {
+                flex-wrap: wrap;
+                height: auto;
+                min-height: 100vh;
+            }
+            
+            .sidebar, .matrix-panel {
+                width: calc(50% - 10px);
+                min-width: 300px;
+            }
+            
+            .main-panel {
+                width: 100%;
+                height: 60vh;
+                order: -1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                padding: 10px;
+                gap: 10px;
+            }
+            
+            .sidebar, .matrix-panel {
+                width: 100%;
+                min-width: unset;
+            }
+            
+            .main-panel {
+                height: 50vh;
+                min-width: unset;
+            }
+            
+            .toolbar {
+                flex-direction: row;
+                border-radius: 15px;
+                padding: 10px;
+                top: 10px;
+                max-width: 95%;
+            }
+            
+            .toolbar button {
+                padding: 8px 12px;
+                font-size: 0.9rem;
+            }
+            
+            .node-item {
+                padding: 10px;
+            }
+        }
+
+        @media (max-width: 480px) and (orientation: landscape) {
+            .container {
+                flex-direction: row;
+                height: 100vh;
+                padding: 8px;
+                gap: 8px;
+            }
+            
+            .sidebar, .matrix-panel {
+                width: 30%;
+                min-width: unset;
+            }
+            
+            .main-panel {
+                width: 40%;
+                height: 100%;
+                order: 0;
+            }
+            
+            .toolbar {
+                flex-direction: column;
+                padding: 8px;
+                top: 50%;
+                left: 20px;
+                transform: translateY(-50%);
+                max-width: 120px;
+            }
+            
+            .toolbar button {
+                padding: 6px 10px;
+                font-size: 0.8rem;
+                justify-content: center;
+            }
+            
+            .node-item {
+                padding: 8px;
+                font-size: 0.9rem;
+            }
+            
+            .sidebar h2, .matrix-panel h2 {
+                font-size: 1.2rem;
+                margin-bottom: 15px;
+            }
+            
+            .info-panel {
+                width: 90%;
+                padding: 15px;
+            }
+        }
+
+        /* شريط التمرير المخصص */
+        .node-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .node-list::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .node-list::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 10px;
+        }
+
+        .node-list::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- القائمة الجانبية -->
+        <div class="sidebar">
+            <h2><i class="fas fa-project-diagram"></i> العقد المتاحة</h2>
+            <div class="node-list">
+                <div class="node-item" draggable="true" data-node="A">
+                    <i class="fas fa-circle"></i> عقدة A
+                </div>
+                <div class="node-item" draggable="true" data-node="B">
+                    <i class="fas fa-circle"></i> عقدة B
+                </div>
+                <div class="node-item" draggable="true" data-node="C">
+                    <i class="fas fa-circle"></i> عقدة C
+                </div>
+                <div class="node-item" draggable="true" data-node="D">
+                    <i class="fas fa-circle"></i> عقدة D
+                </div>
+                <div class="node-item" draggable="true" data-node="E">
+                    <i class="fas fa-circle"></i> عقدة E
+                </div>
+                <div class="node-item" draggable="true" data-node="F">
+                    <i class="fas fa-circle"></i> عقدة F
+                </div>
+                <div class="node-item" draggable="true" data-node="G">
+                    <i class="fas fa-circle"></i> عقدة G
+                </div>
+                <div class="node-item" draggable="true" data-node="H">
+                    <i class="fas fa-circle"></i> عقدة H
+                </div>
+            </div>
+        </div>
+
+        <!-- اللوحة الرئيسية -->
+        <div class="main-panel">
+            <!-- شريط الأدوات -->
+            <div class="toolbar">
+                <button id="dfs-btn">
+                    <i class="fas fa-project-diagram"></i> DFS
+                </button>
+                <button id="bfs-btn">
+                    <i class="fas fa-sitemap"></i> BFS
+                </button>
+                <button id="complement-btn">
+                    <i class="fas fa-code-branch"></i> البيان المتتم
+                </button>
+                <button id="clear-btn">
+                    <i class="fas fa-trash"></i> مسح الكل
+                </button>
+            </div>
+
+            <!-- لوحة الرسم -->
+            <canvas id="graph-canvas"></canvas>
+
+            <!-- نافذة المعلومات -->
+            <div class="info-panel">
+                <button class="close-btn">&times;</button>
+                <h3>معلومات العقدة</h3>
+                <div class="info-content">
+                    <div class="info-item">
+                        <span>اسم العقدة:</span>
+                        <span id="node-name">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span>درجة العقدة:</span>
+                        <span id="node-degree">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span>العقد المجاورة:</span>
+                        <span id="node-neighbors">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- لوحة مصفوفة التجاور -->
+        <div class="matrix-panel">
+            <h2><i class="fas fa-table"></i> مصفوفة التجاور</h2>
+            <div id="adjacency-matrix">
+                <!-- سيتم ملء مصفوفة التجاور هنا ديناميكيًا -->
+                <p>لا توجد عقد في البيان بعد</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SVG للأسهم -->
+    <svg style="position: absolute; width: 0; height: 0;">
+        <defs>
+            <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                <polygon points="0 0, 10 3.5, 0 7" fill="#4895ef"/>
+            </marker>
+        </defs>
+    </svg>
+
+    <script>
+        // حالة التطبيق
+        const state = {
+            nodes: [],
+            edges: [],
+            selectedNode: null,
+            isDrawingEdge: false,
+            nodeCounter: 0,
+            nodeNames: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'],
+            isDragging: false,
+            dragNode: null,
+            dragStartX: 0,
+            dragStartY: 0
+        };
+
+        // العناصر الرئيسية
+        const canvas = document.getElementById('graph-canvas');
+        const ctx = canvas.getContext('2d');
+        const matrixContainer = document.getElementById('adjacency-matrix');
+        const infoPanel = document.querySelector('.info-panel');
+        const closeBtn = document.querySelector('.close-btn');
+
+        // تهيئة اللوحة
+        function initCanvas() {
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            
+            // إضافة مستمعي الأحداث
+            setupEventListeners();
+            
+            // رسم اللوحة
+            draw();
+        }
+
+        // تغيير حجم اللوحة
+        function resizeCanvas() {
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            draw();
+        }
+
+        // إعداد مستمعي الأحداث
+        function setupEventListeners() {
+            // سحب وإفلات العقد
+            document.querySelectorAll('.node-item').forEach(item => {
+                item.addEventListener('dragstart', handleDragStart);
+                item.addEventListener('touchstart', handleTouchStart, {passive: false});
+            });
+
+            canvas.addEventListener('dragover', handleDragOver);
+            canvas.addEventListener('drop', handleDrop);
+            canvas.addEventListener('touchmove', handleTouchMove, {passive: false});
+            canvas.addEventListener('touchend', handleTouchEnd);
+
+            // النقر على العقد
+            canvas.addEventListener('click', handleCanvasClick);
+            canvas.addEventListener('touchstart', handleTouchStartCanvas, {passive: false});
+            
+            // النقر المزدوج بالزر الأيمن لحذف العناصر
+            canvas.addEventListener('contextmenu', handleRightClick);
+            
+            // زر إغلاق نافذة المعلومات
+            closeBtn.addEventListener('click', () => {
+                infoPanel.style.display = 'none';
+            });
+
+            // أزرار الأدوات
+            document.getElementById('dfs-btn').addEventListener('click', runDFS);
+            document.getElementById('bfs-btn').addEventListener('click', runBFS);
+            document.getElementById('complement-btn').addEventListener('click', createComplement);
+            document.getElementById('clear-btn').addEventListener('click', clearGraph);
+        }
+
+        // معالجة بدء السحب
+        function handleDragStart(e) {
+            e.dataTransfer.setData('text/plain', e.target.dataset.node);
+        }
+
+        // معالجة السحب فوق اللوحة
+        function handleDragOver(e) {
+            e.preventDefault();
+        }
+
+        // معالجة إفلات العقدة
+        function handleDrop(e) {
+            e.preventDefault();
+            const nodeName = e.dataTransfer.getData('text/plain');
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            addNode(nodeName, x, y);
+        }
+
+        // معالجة لمس العناصر القابلة للسحب
+        function handleTouchStart(e) {
+            e.preventDefault();
+            const nodeName = e.target.dataset.node;
+            const touch = e.touches[0];
+            
+            // إنشاء حدث سحب وإفلات وهمي
+            const event = new MouseEvent('dragstart', {
+                bubbles: true,
+                cancelable: true,
+                view: window,
+                dataTransfer: {
+                    setData: function(type, value) {
+                        this._data = value;
+                    },
+                    getData: function(type) {
+                        return this._data;
+                    }
+                }
+            });
+            
+            event.dataTransfer.setData('text/plain', nodeName);
+            e.target.dispatchEvent(event);
+            
+            // تخزين معلومات اللمس للسحب
+            state.isDragging = true;
+            state.dragNode = nodeName;
+            state.dragStartX = touch.clientX;
+            state.dragStartY = touch.clientY;
+        }
+
+        // معالجة حركة اللمس على اللوحة
+        function handleTouchMove(e) {
+            if (!state.isDragging) return;
+            e.preventDefault();
+        }
+
+        // معالجة نهاية اللمس
+        function handleTouchEnd(e) {
+            if (!state.isDragging) return;
+            e.preventDefault();
+            
+            const touch = e.changedTouches[0];
+            const rect = canvas.getBoundingClientRect();
+            const x = touch.clientX - rect.left;
+            const y = touch.clientY - rect.top;
+            
+            // التأكد من أن اللمس داخل اللوحة
+            if (x >= 0 && x <= canvas.width && y >= 0 && y <= canvas.height) {
+                addNode(state.dragNode, x, y);
+            }
+            
+            state.isDragging = false;
+            state.dragNode = null;
+        }
+
+        // معالجة لمس اللوحة
+        function handleTouchStartCanvas(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const rect = canvas.getBoundingClientRect();
+            const x = touch.clientX - rect.left;
+            const y = touch.clientY - rect.top;
+            
+            // محاكاة حدث النقر
+            const clickEvent = new MouseEvent('click', {
+                bubbles: true,
+                cancelable: true,
+                view: window,
+                clientX: touch.clientX,
+                clientY: touch.clientY
+            });
+            
+            canvas.dispatchEvent(clickEvent);
+        }
+
+        // إضافة عقدة جديدة
+        function addNode(name, x, y) {
+            // التأكد من أن الاسم فريد
+            let nodeName = name;
+            let counter = 1;
+            while (state.nodes.some(node => node.name === nodeName)) {
+                nodeName = `${name}${counter}`;
+                counter++;
+            }
+            
+            const node = {
+                id: state.nodeCounter++,
+                name: nodeName,
+                x: x,
+                y: y,
+                radius: 25,
+                color: '#4361ee'
+            };
+            
+            state.nodes.push(node);
+            updateAdjacencyMatrix();
+            draw();
+        }
+
+        // معالجة النقر على اللوحة
+        function handleCanvasClick(e) {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            // التحقق من النقر على عقدة
+            const clickedNode = findNodeAt(x, y);
+            
+            if (clickedNode) {
+                if (state.selectedNode && state.selectedNode !== clickedNode) {
+                    // إنشاء وصلة بين العقدتين المحددتين
+                    addEdge(state.selectedNode, clickedNode);
+                    state.selectedNode = null;
+                } else {
+                    // تحديد العقدة أو إلغاء تحديدها
+                    state.selectedNode = state.selectedNode === clickedNode ? null : clickedNode;
+                }
+                
+                // عرض معلومات العقدة
+                if (state.selectedNode) {
+                    showNodeInfo(state.selectedNode);
+                } else {
+                    infoPanel.style.display = 'none';
+                }
+            } else {
+                // إلغاء تحديد العقدة إذا تم النقر على مكان فارغ
+                state.selectedNode = null;
+                infoPanel.style.display = 'none';
+            }
+            
+            draw();
+        }
+
+        // معالجة النقر بالزر الأيمن
+        function handleRightClick(e) {
+            e.preventDefault();
+            
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            // التحقق من النقر على عقدة أو وصلة
+            const clickedNode = findNodeAt(x, y);
+            const clickedEdge = findEdgeAt(x, y);
+            
+            if (clickedNode) {
+                // حذف العقدة والوصلات المرتبطة بها
+                deleteNode(clickedNode);
+            } else if (clickedEdge) {
+                // حذف الوصلة
+                deleteEdge(clickedEdge);
+            }
+            
+            draw();
+        }
+
+        // إيجاد عقدة في موقع معين
+        function findNodeAt(x, y) {
+            for (let i = state.nodes.length - 1; i >= 0; i--) {
+                const node = state.nodes[i];
+                const distance = Math.sqrt((node.x - x) ** 2 + (node.y - y) ** 2);
+                if (distance <= node.radius) {
+                    return node;
+                }
+            }
+            return null;
+        }
+
+        // إيجاد وصلة في موقع معين
+        function findEdgeAt(x, y) {
+            for (const edge of state.edges) {
+                const { source, target } = edge;
+                const distance = distanceToLineSegment(x, y, source.x, source.y, target.x, target.y);
+                if (distance <= 5) {
+                    return edge;
+                }
+            }
+            return null;
+        }
+
+        // حساب المسافة من نقطة إلى قطعة خط
+        function distanceToLineSegment(px, py, x1, y1, x2, y2) {
+            const A = px - x1;
+            const B = py - y1;
+            const C = x2 - x1;
+            const D = y2 - y1;
+
+            const dot = A * C + B * D;
+            const lenSq = C * C + D * D;
+            let param = -1;
+            
+            if (lenSq !== 0) {
+                param = dot / lenSq;
+            }
+
+            let xx, yy;
+
+            if (param < 0) {
+                xx = x1;
+                yy = y1;
+            } else if (param > 1) {
+                xx = x2;
+                yy = y2;
+            } else {
+                xx = x1 + param * C;
+                yy = y1 + param * D;
+            }
+
+            const dx = px - xx;
+            const dy = py - yy;
+            
+            return Math.sqrt(dx * dx + dy * dy);
+        }
+
+        // إضافة وصلة
+        function addEdge(source, target) {
+            // التأكد من عدم وجود وصلة مسبقة بين العقدتين
+            const existingEdge = state.edges.find(edge => 
+                (edge.source === source && edge.target === target) || 
+                (edge.source === target && edge.target === source)
+            );
+            
+            if (!existingEdge && source !== target) {
+                state.edges.push({
+                    source: source,
+                    target: target,
+                    color: '#4895ef'
+                });
+                updateAdjacencyMatrix();
+            }
+        }
+
+        // حذف عقدة
+        function deleteNode(node) {
+            // حذف جميع الوصلات المرتبطة بالعقدة
+            state.edges = state.edges.filter(edge => 
+                edge.source !== node && edge.target !== node
+            );
+            
+            // حذف العقدة
+            state.nodes = state.nodes.filter(n => n !== node);
+            
+            // إلغاء تحديد العقدة إذا كانت محددة
+            if (state.selectedNode === node) {
+                state.selectedNode = null;
+                infoPanel.style.display = 'none';
+            }
+            
+            updateAdjacencyMatrix();
+        }
+
+        // حذف وصلة
+        function deleteEdge(edge) {
+            state.edges = state.edges.filter(e => e !== edge);
+            updateAdjacencyMatrix();
+        }
+
+        // عرض معلومات العقدة
+        function showNodeInfo(node) {
+            document.getElementById('node-name').textContent = node.name;
+            
+            // حساب درجة العقدة
+            const degree = state.edges.filter(edge => 
+                edge.source === node || edge.target === node
+            ).length;
+            
+            document.getElementById('node-degree').textContent = degree;
+            
+            // العثور على العقد المجاورة
+            const neighbors = [];
+            state.edges.forEach(edge => {
+                if (edge.source === node) {
+                    neighbors.push(edge.target.name);
+                } else if (edge.target === node) {
+                    neighbors.push(edge.source.name);
+                }
+            });
+            
+            document.getElementById('node-neighbors').textContent = neighbors.join(', ');
+            infoPanel.style.display = 'block';
+        }
+
+        // تحديث مصفوفة التجاور
+        function updateAdjacencyMatrix() {
+            if (state.nodes.length === 0) {
+                matrixContainer.innerHTML = '<p>لا توجد عقد في البيان بعد</p>';
+                return;
+            }
+            
+            // إنشاء مصفوفة التجاور
+            const matrix = [];
+            const n = state.nodes.length;
+            
+            // تهيئة المصفوفة بالأصفار
+            for (let i = 0; i < n; i++) {
+                matrix[i] = Array(n).fill(0);
+            }
+            
+            // ملء المصفوفة بناءً على الوصلات
+            state.edges.forEach(edge => {
+                const i = state.nodes.indexOf(edge.source);
+                const j = state.nodes.indexOf(edge.target);
+                matrix[i][j] = 1;
+                matrix[j][i] = 1; // البيان غير موجه
+            });
+            
+            // عرض المصفوفة من اليسار لليمين
+            let html = '<table class="matrix-table">';
+            
+            // رأس الجدول (أسماء العقد)
+            html += '<tr><th></th>';
+            state.nodes.forEach(node => {
+                html += `<th>${node.name}</th>`;
+            });
+            html += '</tr>';
+            
+            // صفوف المصفوفة
+            for (let i = 0; i < n; i++) {
+                html += `<tr><th>${state.nodes[i].name}</th>`;
+                for (let j = 0; j < n; j++) {
+                    const value = matrix[i][j];
+                    const isDiagonal = i === j;
+                    const cellClass = isDiagonal ? 'diagonal' : '';
+                    const color = value === 1 ? 'var(--success)' : 'transparent';
+                    html += `<td class="${cellClass}" style="background-color: ${color};">${value}</td>`;
+                }
+                html += '</tr>';
+            }
+            
+            html += '</table>';
+            matrixContainer.innerHTML = html;
+        }
+
+        // رسم اللوحة
+        function draw() {
+            // مسح اللوحة
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // رسم الوصلات
+            state.edges.forEach(edge => {
+                drawEdge(edge);
+            });
+            
+            // رسم العقد
+            state.nodes.forEach(node => {
+                drawNode(node);
+            });
+        }
+
+        // رسم عقدة
+        function drawNode(node) {
+            ctx.beginPath();
+            ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
+            
+            // إذا كانت العقدة محددة، ارسمها بلون مختلف
+            if (node === state.selectedNode) {
+                ctx.fillStyle = '#f8961e';
+                ctx.shadowColor = '#f8961e';
+                ctx.shadowBlur = 15;
+            } else {
+                ctx.fillStyle = node.color;
+                ctx.shadowColor = node.color;
+                ctx.shadowBlur = 10;
+            }
+            
+            ctx.fill();
+            ctx.shadowBlur = 0;
+            
+            // نص العقدة
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 16px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(node.name, node.x, node.y);
+        }
+
+        // رسم وصلة
+        function drawEdge(edge) {
+            const { source, target } = edge;
+            
+            ctx.beginPath();
+            ctx.moveTo(source.x, source.y);
+            ctx.lineTo(target.x, target.y);
+            ctx.strokeStyle = edge.color;
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            
+            // رسم رأس السهم في منتصف الوصلة
+            const midX = (source.x + target.x) / 2;
+            const midY = (source.y + target.y) / 2;
+            
+            // حساب زاوية الوصلة
+            const angle = Math.atan2(target.y - source.y, target.x - source.x);
+            
+            // رسم رأس السهم
+            ctx.save();
+            ctx.translate(midX, midY);
+            ctx.rotate(angle);
+            
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(-10, -5);
+            ctx.lineTo(-10, 5);
+            ctx.closePath();
+            ctx.fillStyle = edge.color;
+            ctx.fill();
+            
+            ctx.restore();
+        }
+
+        // تشغيل خوارزمية DFS
+        function runDFS() {
+            if (state.nodes.length === 0) return;
+            
+            // إعادة تعيين ألوان العقد
+            state.nodes.forEach(node => {
+                node.color = '#4361ee';
+            });
+            
+            // البدء من العقدة الأولى
+            const startNode = state.nodes[0];
+            const visited = new Set();
+            
+            // تنفيذ DFS
+            function dfs(node) {
+                visited.add(node);
+                node.color = '#4cc9f0';
+                draw();
+                
+                // العثور على العقد المجاورة
+                const neighbors = [];
+                state.edges.forEach(edge => {
+                    if (edge.source === node && !visited.has(edge.target)) {
+                        neighbors.push(edge.target);
+                    } else if (edge.target === node && !visited.has(edge.source)) {
+                        neighbors.push(edge.source);
+                    }
+                });
+                
+                // زيارة كل جار
+                neighbors.forEach(neighbor => {
+                    if (!visited.has(neighbor)) {
+                        setTimeout(() => dfs(neighbor), 1000);
+                    }
+                });
+            }
+            
+            dfs(startNode);
+        }
+
+        // تشغيل خوارزمية BFS
+        function runBFS() {
+            if (state.nodes.length === 0) return;
+            
+            // إعادة تعيين ألوان العقد
+            state.nodes.forEach(node => {
+                node.color = '#4361ee';
+            });
+            
+            // البدء من العقدة الأولى
+            const startNode = state.nodes[0];
+            const visited = new Set();
+            const queue = [startNode];
+            visited.add(startNode);
+            
+            let index = 0;
+            
+            function processNext() {
+                if (index < queue.length) {
+                    const currentNode = queue[index];
+                    currentNode.color = '#4cc9f0';
+                    draw();
+                    
+                    // العثور على العقد المجاورة
+                    state.edges.forEach(edge => {
+                        if (edge.source === currentNode && !visited.has(edge.target)) {
+                            visited.add(edge.target);
+                            queue.push(edge.target);
+                        } else if (edge.target === currentNode && !visited.has(edge.source)) {
+                            visited.add(edge.source);
+                            queue.push(edge.source);
+                        }
+                    });
+                    
+                    index++;
+                    setTimeout(processNext, 1000);
+                }
+            }
+            
+            processNext();
+        }
+
+        // إنشاء البيان المتتم
+        function createComplement() {
+            if (state.nodes.length === 0) return;
+            
+            // إنشاء مجموعة من الوصلات الحالية
+            const currentEdges = new Set();
+            state.edges.forEach(edge => {
+                const key1 = `${edge.source.id}-${edge.target.id}`;
+                const key2 = `${edge.target.id}-${edge.source.id}`;
+                currentEdges.add(key1);
+                currentEdges.add(key2);
+            });
+            
+            // إنشاء جميع الوصلات الممكنة
+            const allPossibleEdges = [];
+            for (let i = 0; i < state.nodes.length; i++) {
+                for (let j = i + 1; j < state.nodes.length; j++) {
+                    allPossibleEdges.push({
+                        source: state.nodes[i],
+                        target: state.nodes[j]
+                    });
+                }
+            }
+            
+            // إنشاء الوصلات للبيان المتتم (جميع الوصلات غير الموجودة في البيان الأصلي)
+            state.edges = allPossibleEdges.filter(edge => {
+                const key = `${edge.source.id}-${edge.target.id}`;
+                return !currentEdges.has(key);
+            });
+            
+            // تحديث المصفوفة والرسم
+            updateAdjacencyMatrix();
+            draw();
+        }
+
+        // مسح البيان بالكامل
+        function clearGraph() {
+            state.nodes = [];
+            state.edges = [];
+            state.selectedNode = null;
+            state.nodeCounter = 0;
+            updateAdjacencyMatrix();
+            infoPanel.style.display = 'none';
+            draw();
+        }
+
+        // بدء التطبيق
+        initCanvas();
+    </script>
+</body>
+</html>
