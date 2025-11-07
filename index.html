@@ -48,7 +48,7 @@
 
         /* القائمة الجانبية */
         .sidebar {
-            width: 250px;
+            width: 300px;
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
             border-radius: 15px;
@@ -57,7 +57,7 @@
             flex-direction: column;
             box-shadow: var(--shadow);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            min-width: 200px;
+            min-width: 250px;
         }
 
         .sidebar h2 {
@@ -82,7 +82,7 @@
             padding: 12px;
             border-radius: 10px;
             text-align: center;
-            cursor: grab;
+            cursor: pointer;
             transition: var(--transition);
             box-shadow: var(--shadow);
             font-weight: bold;
@@ -91,6 +91,12 @@
             justify-content: center;
             gap: 8px;
             touch-action: none;
+            user-select: none;
+        }
+
+        .node-item:active {
+            background: var(--secondary);
+            transform: scale(0.95);
         }
 
         .node-item:hover {
@@ -100,6 +106,68 @@
 
         .node-item i {
             font-size: 1.2rem;
+        }
+
+        /* قسم معلومات العقد */
+        .nodes-info {
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 15px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .nodes-info h3 {
+            text-align: center;
+            margin-bottom: 15px;
+            color: var(--light);
+            font-size: 1.2rem;
+            border-bottom: 1px solid var(--accent);
+            padding-bottom: 8px;
+        }
+
+        .node-info-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            transition: var(--transition);
+        }
+
+        .node-info-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .node-info-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .node-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .node-degree {
+            background: var(--accent);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+        }
+
+        .node-neighbors {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .no-nodes {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.6);
+            font-style: italic;
+            padding: 20px;
         }
 
         /* اللوحة الرئيسية */
@@ -220,6 +288,10 @@
             transform: translateY(-3px);
         }
 
+        .toolbar button:active {
+            transform: scale(0.95);
+        }
+
         .toolbar button i {
             font-size: 1.1rem;
         }
@@ -273,41 +345,6 @@
             color: var(--light);
             font-size: 1.2rem;
             cursor: pointer;
-        }
-
-        /* العقد والوصلات */
-        .node {
-            position: absolute;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: var(--primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 0 10px var(--primary);
-            transition: var(--transition);
-            z-index: 10;
-        }
-
-        .node:hover {
-            transform: scale(1.1);
-            box-shadow: 0 0 15px var(--accent);
-        }
-
-        .edge {
-            position: absolute;
-            pointer-events: none;
-            z-index: 5;
-        }
-
-        .edge-line {
-            stroke: var(--accent);
-            stroke-width: 3;
-            marker-end: url(#arrowhead);
         }
 
         /* تأثيرات للرسوم المتحركة */
@@ -427,22 +464,44 @@
         }
 
         /* شريط التمرير المخصص */
-        .node-list::-webkit-scrollbar {
+        .node-list::-webkit-scrollbar,
+        .nodes-info::-webkit-scrollbar {
             width: 8px;
         }
 
-        .node-list::-webkit-scrollbar-track {
+        .node-list::-webkit-scrollbar-track,
+        .nodes-info::-webkit-scrollbar-track {
             background: rgba(255, 255, 255, 0.1);
             border-radius: 10px;
         }
 
-        .node-list::-webkit-scrollbar-thumb {
+        .node-list::-webkit-scrollbar-thumb,
+        .nodes-info::-webkit-scrollbar-thumb {
             background: var(--primary);
             border-radius: 10px;
         }
 
-        .node-list::-webkit-scrollbar-thumb:hover {
+        .node-list::-webkit-scrollbar-thumb:hover,
+        .nodes-info::-webkit-scrollbar-thumb:hover {
             background: var(--secondary);
+        }
+
+        /* مؤشر السحب */
+        .drag-indicator {
+            position: fixed;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            pointer-events: none;
+            z-index: 1000;
+            box-shadow: 0 0 15px var(--primary);
+            transition: transform 0.1s ease;
         }
     </style>
 </head>
@@ -450,31 +509,20 @@
     <div class="container">
         <!-- القائمة الجانبية -->
         <div class="sidebar">
-            <h2><i class="fas fa-project-diagram"></i> العقد المتاحة</h2>
+            <h2><i class="fas fa-project-diagram"></i> أدوات البيان</h2>
+            
+            <!-- قسم إضافة العقد -->
             <div class="node-list">
-                <div class="node-item" draggable="true" data-node="A">
-                    <i class="fas fa-circle"></i> عقدة A
+                <div class="node-item" data-node="new">
+                    <i class="fas fa-plus-circle"></i> عقدة جديدة
                 </div>
-                <div class="node-item" draggable="true" data-node="B">
-                    <i class="fas fa-circle"></i> عقدة B
-                </div>
-                <div class="node-item" draggable="true" data-node="C">
-                    <i class="fas fa-circle"></i> عقدة C
-                </div>
-                <div class="node-item" draggable="true" data-node="D">
-                    <i class="fas fa-circle"></i> عقدة D
-                </div>
-                <div class="node-item" draggable="true" data-node="E">
-                    <i class="fas fa-circle"></i> عقدة E
-                </div>
-                <div class="node-item" draggable="true" data-node="F">
-                    <i class="fas fa-circle"></i> عقدة F
-                </div>
-                <div class="node-item" draggable="true" data-node="G">
-                    <i class="fas fa-circle"></i> عقدة G
-                </div>
-                <div class="node-item" draggable="true" data-node="H">
-                    <i class="fas fa-circle"></i> عقدة H
+            </div>
+
+            <!-- قسم معلومات العقد -->
+            <div class="nodes-info">
+                <h3><i class="fas fa-info-circle"></i> معلومات العقد</h3>
+                <div id="nodes-info-container">
+                    <div class="no-nodes">لا توجد عقد في البيان بعد</div>
                 </div>
             </div>
         </div>
@@ -525,7 +573,6 @@
         <div class="matrix-panel">
             <h2><i class="fas fa-table"></i> مصفوفة التجاور</h2>
             <div id="adjacency-matrix">
-                <!-- سيتم ملء مصفوفة التجاور هنا ديناميكيًا -->
                 <p>لا توجد عقد في البيان بعد</p>
             </div>
         </div>
@@ -548,11 +595,13 @@
             selectedNode: null,
             isDrawingEdge: false,
             nodeCounter: 0,
-            nodeNames: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'],
-            isDragging: false,
+            nodeNames: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'],
+            isDraggingNode: false,
             dragNode: null,
-            dragStartX: 0,
-            dragStartY: 0
+            dragOffsetX: 0,
+            dragOffsetY: 0,
+            activeTouch: null,
+            isAddingNode: false
         };
 
         // العناصر الرئيسية
@@ -561,6 +610,13 @@
         const matrixContainer = document.getElementById('adjacency-matrix');
         const infoPanel = document.querySelector('.info-panel');
         const closeBtn = document.querySelector('.close-btn');
+        const nodesInfoContainer = document.getElementById('nodes-info-container');
+
+        // مؤشر السحب
+        const dragIndicator = document.createElement('div');
+        dragIndicator.className = 'drag-indicator';
+        dragIndicator.style.display = 'none';
+        document.body.appendChild(dragIndicator);
 
         // تهيئة اللوحة
         function initCanvas() {
@@ -583,24 +639,33 @@
 
         // إعداد مستمعي الأحداث
         function setupEventListeners() {
-            // سحب وإفلات العقد
+            // أحداث اللمس للعقد الجانبية
             document.querySelectorAll('.node-item').forEach(item => {
-                item.addEventListener('dragstart', handleDragStart);
-                item.addEventListener('touchstart', handleTouchStart, {passive: false});
+                item.addEventListener('touchstart', handleNodeTouchStart, { passive: false });
+                item.addEventListener('touchend', handleNodeTouchEnd, { passive: false });
+                
+                // أحداث الماوس للعقد الجانبية (للكمبيوتر)
+                item.addEventListener('mousedown', handleNodeMouseDown);
             });
 
-            canvas.addEventListener('dragover', handleDragOver);
-            canvas.addEventListener('drop', handleDrop);
-            canvas.addEventListener('touchmove', handleTouchMove, {passive: false});
-            canvas.addEventListener('touchend', handleTouchEnd);
+            // أحداث اللمس للوحة الرسم
+            canvas.addEventListener('touchstart', handleCanvasTouchStart, { passive: false });
+            canvas.addEventListener('touchmove', handleCanvasTouchMove, { passive: false });
+            canvas.addEventListener('touchend', handleCanvasTouchEnd, { passive: false });
+            canvas.addEventListener('touchcancel', handleCanvasTouchEnd, { passive: false });
 
-            // النقر على العقد
+            // أحداث الماوس للوحة الرسم (للكمبيوتر)
+            canvas.addEventListener('mousedown', handleCanvasMouseDown);
+            canvas.addEventListener('mousemove', handleCanvasMouseMove);
+            canvas.addEventListener('mouseup', handleCanvasMouseUp);
+            canvas.addEventListener('mouseleave', handleCanvasMouseUp);
             canvas.addEventListener('click', handleCanvasClick);
-            canvas.addEventListener('touchstart', handleTouchStartCanvas, {passive: false});
-            
-            // النقر المزدوج بالزر الأيمن لحذف العناصر
             canvas.addEventListener('contextmenu', handleRightClick);
-            
+
+            // أحداث الماوس للوثيقة (للسحب من القائمة الجانبية على الكمبيوتر)
+            document.addEventListener('mousemove', handleDocumentMouseMove);
+            document.addEventListener('mouseup', handleDocumentMouseUp);
+
             // زر إغلاق نافذة المعلومات
             closeBtn.addEventListener('click', () => {
                 infoPanel.style.display = 'none';
@@ -613,116 +678,276 @@
             document.getElementById('clear-btn').addEventListener('click', clearGraph);
         }
 
-        // معالجة بدء السحب
-        function handleDragStart(e) {
-            e.dataTransfer.setData('text/plain', e.target.dataset.node);
+        // توليد اسم عقدة جديد
+        function generateNodeName() {
+            // استخدام الحروف الأبجدية أولاً
+            if (state.nodeCounter < state.nodeNames.length) {
+                return state.nodeNames[state.nodeCounter];
+            }
+            // إذا تجاوزنا الحروف، نستخدم أرقام
+            return `N${state.nodeCounter - state.nodeNames.length + 1}`;
         }
 
-        // معالجة السحب فوق اللوحة
-        function handleDragOver(e) {
-            e.preventDefault();
+        // تحديث معلومات العقد في القائمة الجانبية
+        function updateNodesInfo() {
+            if (state.nodes.length === 0) {
+                nodesInfoContainer.innerHTML = '<div class="no-nodes">لا توجد عقد في البيان بعد</div>';
+                return;
+            }
+
+            let html = '';
+            state.nodes.forEach(node => {
+                // حساب درجة العقدة
+                const degree = state.edges.filter(edge => 
+                    edge.source === node || edge.target === node
+                ).length;
+                
+                // العثور على العقد المجاورة
+                const neighbors = [];
+                state.edges.forEach(edge => {
+                    if (edge.source === node) {
+                        neighbors.push(edge.target.name);
+                    } else if (edge.target === node) {
+                        neighbors.push(edge.source.name);
+                    }
+                });
+
+                const neighborsText = neighbors.length > 0 ? neighbors.join(', ') : 'لا يوجد';
+
+                html += `
+                    <div class="node-info-item" data-node-id="${node.id}">
+                        <div class="node-info-header">
+                            <span class="node-name">${node.name}</span>
+                            <span class="node-degree">درجة: ${degree}</span>
+                        </div>
+                        <div class="node-neighbors">المجاورة: ${neighborsText}</div>
+                    </div>
+                `;
+            });
+
+            nodesInfoContainer.innerHTML = html;
         }
 
-        // معالجة إفلات العقدة
-        function handleDrop(e) {
+        // معالجة النقر على العقد الجانبية (للكمبيوتر)
+        function handleNodeMouseDown(e) {
             e.preventDefault();
-            const nodeName = e.dataTransfer.getData('text/plain');
+            
+            // بدء عملية إضافة عقدة
+            state.isAddingNode = true;
+            const nodeName = generateNodeName();
+            
+            // عرض مؤشر السحب
+            dragIndicator.textContent = nodeName;
+            dragIndicator.style.display = 'flex';
+            updateDragIndicator(e.clientX, e.clientY);
+            
+            // إضافة مستمعي الأحداث للمستند
+            document.addEventListener('mousemove', handleDocumentMouseMove);
+            document.addEventListener('mouseup', handleDocumentMouseUp);
+        }
+
+        // معالجة حركة الماوس في المستند (للسحب من القائمة الجانبية)
+        function handleDocumentMouseMove(e) {
+            if (state.isAddingNode) {
+                updateDragIndicator(e.clientX, e.clientY);
+            }
+        }
+
+        // معالجة رفع الماوس في المستند
+        function handleDocumentMouseUp(e) {
+            if (state.isAddingNode) {
+                // إخفاء مؤشر السحب
+                dragIndicator.style.display = 'none';
+                
+                // إضافة العقدة إلى اللوحة إذا كان الماوس فوقها
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                if (x >= 0 && x <= canvas.width && y >= 0 && y <= canvas.height) {
+                    addNode(generateNodeName(), x, y);
+                }
+                
+                state.isAddingNode = false;
+                
+                // إزالة مستمعي الأحداث
+                document.removeEventListener('mousemove', handleDocumentMouseMove);
+                document.removeEventListener('mouseup', handleDocumentMouseUp);
+            }
+        }
+
+        // معالجة لمس العقد الجانبية
+        function handleNodeTouchStart(e) {
+            e.preventDefault();
+            if (state.activeTouch) return; // منع اللمسات المتعددة
+            
+            const touch = e.touches[0];
+            const nodeName = generateNodeName();
+            state.activeTouch = {
+                type: 'sidebar',
+                nodeName: nodeName,
+                identifier: touch.identifier
+            };
+
+            // عرض مؤشر السحب
+            dragIndicator.textContent = nodeName;
+            dragIndicator.style.display = 'flex';
+            updateDragIndicator(touch.clientX, touch.clientY);
+        }
+
+        // معالجة نهاية لمس العقد الجانبية
+        function handleNodeTouchEnd(e) {
+            if (!state.activeTouch || state.activeTouch.type !== 'sidebar') return;
+            
+            const touch = e.changedTouches[0];
+            if (touch.identifier !== state.activeTouch.identifier) return;
+
+            // إخفاء مؤشر السحب
+            dragIndicator.style.display = 'none';
+            
+            // إضافة العقدة إلى اللوحة
+            const rect = canvas.getBoundingClientRect();
+            const x = touch.clientX - rect.left;
+            const y = touch.clientY - rect.top;
+            
+            if (x >= 0 && x <= canvas.width && y >= 0 && y <= canvas.height) {
+                addNode(state.activeTouch.nodeName, x, y);
+            }
+            
+            state.activeTouch = null;
+        }
+
+        // معالجة لمس اللوحة
+        function handleCanvasTouchStart(e) {
+            e.preventDefault();
+            if (state.activeTouch) return;
+            
+            const touch = e.touches[0];
+            const rect = canvas.getBoundingClientRect();
+            const x = touch.clientX - rect.left;
+            const y = touch.clientY - rect.top;
+            
+            const clickedNode = findNodeAt(x, y);
+            
+            if (clickedNode) {
+                state.activeTouch = {
+                    type: 'canvas',
+                    node: clickedNode,
+                    identifier: touch.identifier,
+                    startX: x,
+                    startY: y
+                };
+                
+                // بدء سحب العقدة
+                state.isDraggingNode = true;
+                state.dragNode = clickedNode;
+                state.dragOffsetX = x - clickedNode.x;
+                state.dragOffsetY = y - clickedNode.y;
+            } else {
+                // النقر على منطقة فارغة
+                handleCanvasClick({ clientX: touch.clientX, clientY: touch.clientY });
+            }
+        }
+
+        // معالجة حركة اللمس على اللوحة
+        function handleCanvasTouchMove(e) {
+            if (!state.activeTouch || state.activeTouch.type !== 'canvas') return;
+            
+            const touch = Array.from(e.touches).find(t => t.identifier === state.activeTouch.identifier);
+            if (!touch) return;
+            
+            e.preventDefault();
+            
+            const rect = canvas.getBoundingClientRect();
+            const x = touch.clientX - rect.left;
+            const y = touch.clientY - rect.top;
+            
+            if (state.isDraggingNode && state.dragNode) {
+                // تحديث موقع العقدة المسحوبة
+                state.dragNode.x = x - state.dragOffsetX;
+                state.dragNode.y = y - state.dragOffsetY;
+                draw();
+            }
+            
+            // تحديث مؤشر السحب إذا كان مرئيًا
+            if (dragIndicator.style.display !== 'none') {
+                updateDragIndicator(touch.clientX, touch.clientY);
+            }
+        }
+
+        // معالجة نهاية لمس اللوحة
+        function handleCanvasTouchEnd(e) {
+            if (!state.activeTouch || state.activeTouch.type !== 'canvas') return;
+            
+            const touch = Array.from(e.changedTouches).find(t => t.identifier === state.activeTouch.identifier);
+            if (!touch) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const x = touch.clientX - rect.left;
+            const y = touch.clientY - rect.top;
+            
+            if (state.isDraggingNode) {
+                // إنهاء سحب العقدة
+                state.isDraggingNode = false;
+                state.dragNode = null;
+                updateAdjacencyMatrix();
+                updateNodesInfo();
+            } else {
+                // معالجة النقر العادي
+                handleCanvasClick({ clientX: touch.clientX, clientY: touch.clientY });
+            }
+            
+            state.activeTouch = null;
+        }
+
+        // معالجة أحداث الماوس للوحة الرسم (للكمبيوتر)
+        function handleCanvasMouseDown(e) {
             const rect = canvas.getBoundingClientRect();
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
             
-            addNode(nodeName, x, y);
-        }
-
-        // معالجة لمس العناصر القابلة للسحب
-        function handleTouchStart(e) {
-            e.preventDefault();
-            const nodeName = e.target.dataset.node;
-            const touch = e.touches[0];
+            const clickedNode = findNodeAt(x, y);
             
-            // إنشاء حدث سحب وإفلات وهمي
-            const event = new MouseEvent('dragstart', {
-                bubbles: true,
-                cancelable: true,
-                view: window,
-                dataTransfer: {
-                    setData: function(type, value) {
-                        this._data = value;
-                    },
-                    getData: function(type) {
-                        return this._data;
-                    }
-                }
-            });
-            
-            event.dataTransfer.setData('text/plain', nodeName);
-            e.target.dispatchEvent(event);
-            
-            // تخزين معلومات اللمس للسحب
-            state.isDragging = true;
-            state.dragNode = nodeName;
-            state.dragStartX = touch.clientX;
-            state.dragStartY = touch.clientY;
-        }
-
-        // معالجة حركة اللمس على اللوحة
-        function handleTouchMove(e) {
-            if (!state.isDragging) return;
-            e.preventDefault();
-        }
-
-        // معالجة نهاية اللمس
-        function handleTouchEnd(e) {
-            if (!state.isDragging) return;
-            e.preventDefault();
-            
-            const touch = e.changedTouches[0];
-            const rect = canvas.getBoundingClientRect();
-            const x = touch.clientX - rect.left;
-            const y = touch.clientY - rect.top;
-            
-            // التأكد من أن اللمس داخل اللوحة
-            if (x >= 0 && x <= canvas.width && y >= 0 && y <= canvas.height) {
-                addNode(state.dragNode, x, y);
+            if (clickedNode) {
+                state.isDraggingNode = true;
+                state.dragNode = clickedNode;
+                state.dragOffsetX = x - clickedNode.x;
+                state.dragOffsetY = y - clickedNode.y;
             }
-            
-            state.isDragging = false;
-            state.dragNode = null;
         }
 
-        // معالجة لمس اللوحة
-        function handleTouchStartCanvas(e) {
-            e.preventDefault();
-            const touch = e.touches[0];
-            const rect = canvas.getBoundingClientRect();
-            const x = touch.clientX - rect.left;
-            const y = touch.clientY - rect.top;
-            
-            // محاكاة حدث النقر
-            const clickEvent = new MouseEvent('click', {
-                bubbles: true,
-                cancelable: true,
-                view: window,
-                clientX: touch.clientX,
-                clientY: touch.clientY
-            });
-            
-            canvas.dispatchEvent(clickEvent);
+        function handleCanvasMouseMove(e) {
+            if (state.isDraggingNode && state.dragNode) {
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                state.dragNode.x = x - state.dragOffsetX;
+                state.dragNode.y = y - state.dragOffsetY;
+                draw();
+            }
+        }
+
+        function handleCanvasMouseUp(e) {
+            if (state.isDraggingNode) {
+                state.isDraggingNode = false;
+                state.dragNode = null;
+                updateAdjacencyMatrix();
+                updateNodesInfo();
+            }
+        }
+
+        // تحديث مؤشر السحب
+        function updateDragIndicator(x, y) {
+            dragIndicator.style.left = (x - 25) + 'px';
+            dragIndicator.style.top = (y - 25) + 'px';
         }
 
         // إضافة عقدة جديدة
         function addNode(name, x, y) {
-            // التأكد من أن الاسم فريد
-            let nodeName = name;
-            let counter = 1;
-            while (state.nodes.some(node => node.name === nodeName)) {
-                nodeName = `${name}${counter}`;
-                counter++;
-            }
-            
             const node = {
                 id: state.nodeCounter++,
-                name: nodeName,
+                name: name,
                 x: x,
                 y: y,
                 radius: 25,
@@ -731,6 +956,7 @@
             
             state.nodes.push(node);
             updateAdjacencyMatrix();
+            updateNodesInfo();
             draw();
         }
 
@@ -766,6 +992,7 @@
             }
             
             draw();
+            updateNodesInfo();
         }
 
         // معالجة النقر بالزر الأيمن
@@ -789,6 +1016,7 @@
             }
             
             draw();
+            updateNodesInfo();
         }
 
         // إيجاد عقدة في موقع معين
@@ -864,6 +1092,7 @@
                     color: '#4895ef'
                 });
                 updateAdjacencyMatrix();
+                updateNodesInfo();
             }
         }
 
@@ -884,12 +1113,14 @@
             }
             
             updateAdjacencyMatrix();
+            updateNodesInfo();
         }
 
         // حذف وصلة
         function deleteEdge(edge) {
             state.edges = state.edges.filter(e => e !== edge);
             updateAdjacencyMatrix();
+            updateNodesInfo();
         }
 
         // عرض معلومات العقدة
@@ -1159,6 +1390,7 @@
             
             // تحديث المصفوفة والرسم
             updateAdjacencyMatrix();
+            updateNodesInfo();
             draw();
         }
 
@@ -1169,6 +1401,7 @@
             state.selectedNode = null;
             state.nodeCounter = 0;
             updateAdjacencyMatrix();
+            updateNodesInfo();
             infoPanel.style.display = 'none';
             draw();
         }
