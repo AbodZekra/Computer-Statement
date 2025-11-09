@@ -48,7 +48,7 @@
 
         /* القائمة الجانبية */
         .sidebar {
-            width: 300px;
+            width: 280px;
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
             border-radius: 15px;
@@ -73,13 +73,12 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
-            flex: 1;
-            overflow-y: auto;
+            margin-bottom: 20px;
         }
 
         .node-item {
             background: var(--primary);
-            padding: 12px;
+            padding: 15px;
             border-radius: 10px;
             text-align: center;
             cursor: pointer;
@@ -108,17 +107,20 @@
             font-size: 1.2rem;
         }
 
-        /* قسم معلومات العقد */
-        .nodes-info {
-            margin-top: 20px;
+        /* قسم معلومات العقدة المحددة */
+        .selected-node-info {
             background: rgba(255, 255, 255, 0.05);
             border-radius: 10px;
             padding: 15px;
             flex: 1;
-            overflow-y: auto;
+            display: none;
         }
 
-        .nodes-info h3 {
+        .selected-node-info.active {
+            display: block;
+        }
+
+        .selected-node-info h3 {
             text-align: center;
             margin-bottom: 15px;
             color: var(--light);
@@ -127,47 +129,24 @@
             padding-bottom: 8px;
         }
 
-        .node-info-item {
+        .info-item {
             background: rgba(255, 255, 255, 0.1);
             padding: 10px;
             border-radius: 8px;
             margin-bottom: 8px;
-            transition: var(--transition);
-        }
-
-        .node-info-item:hover {
-            background: rgba(255, 255, 255, 0.15);
-        }
-
-        .node-info-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 5px;
         }
 
-        .node-name {
-            font-weight: bold;
-            font-size: 1.1rem;
-        }
-
-        .node-degree {
-            background: var(--accent);
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 0.8rem;
-        }
-
-        .node-neighbors {
-            font-size: 0.9rem;
+        .info-label {
+            font-weight: 500;
             color: rgba(255, 255, 255, 0.8);
         }
 
-        .no-nodes {
-            text-align: center;
-            color: rgba(255, 255, 255, 0.6);
-            font-style: italic;
-            padding: 20px;
+        .info-value {
+            font-weight: bold;
+            color: var(--success);
         }
 
         /* اللوحة الرئيسية */
@@ -246,6 +225,54 @@
             background: rgba(76, 201, 240, 0.3);
         }
 
+        /* معلومات البيان */
+        .graph-info {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 15px 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            z-index: 50;
+            min-width: 200px;
+        }
+
+        .graph-info h4 {
+            text-align: center;
+            margin-bottom: 12px;
+            color: var(--light);
+            font-size: 1rem;
+            border-bottom: 1px solid var(--accent);
+            padding-bottom: 8px;
+        }
+
+        .graph-stat {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            font-size: 0.9rem;
+        }
+
+        .graph-stat-label {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .graph-stat-value {
+            font-weight: bold;
+            color: var(--success);
+        }
+
+        .graph-stat-value.solvable {
+            color: var(--success);
+        }
+
+        .graph-stat-value.not-solvable {
+            color: var(--danger);
+        }
+
         /* شريط الأدوات */
         .toolbar {
             position: absolute;
@@ -296,129 +323,6 @@
             font-size: 1.1rem;
         }
 
-        /* نافذة المعلومات */
-        .info-panel {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 20px;
-            width: 80%;
-            max-width: 500px;
-            box-shadow: var(--shadow);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            display: none;
-            z-index: 100;
-        }
-
-        .info-panel h3 {
-            margin-bottom: 15px;
-            color: var(--light);
-            text-align: center;
-            border-bottom: 2px solid var(--accent);
-            padding-bottom: 10px;
-        }
-
-        .info-content {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .info-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-        }
-
-        .close-btn {
-            position: absolute;
-            top: 10px;
-            left: 15px;
-            background: none;
-            border: none;
-            color: var(--light);
-            font-size: 1.2rem;
-            cursor: pointer;
-        }
-
-        /* القائمة السياقية للهاتف */
-        .context-menu {
-            position: fixed;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 10px;
-            padding: 10px 0;
-            box-shadow: var(--shadow);
-            z-index: 1000;
-            display: none;
-            min-width: 150px;
-            direction: rtl;
-        }
-
-        .context-menu button {
-            width: 100%;
-            background: none;
-            border: none;
-            padding: 12px 20px;
-            text-align: right;
-            cursor: pointer;
-            transition: var(--transition);
-            color: var(--dark);
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .context-menu button:hover {
-            background: rgba(67, 97, 238, 0.1);
-        }
-
-        .context-menu button i {
-            font-size: 1rem;
-            color: var(--primary);
-        }
-
-        .context-menu .delete-btn {
-            color: var(--danger);
-        }
-
-        .context-menu .delete-btn i {
-            color: var(--danger);
-        }
-
-        /* زر وضع الهاتف */
-        .mobile-mode-btn {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: var(--transition);
-            box-shadow: var(--shadow);
-            z-index: 100;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-        }
-
-        .mobile-mode-btn.active {
-            background: var(--warning);
-            animation: pulse 2s infinite;
-        }
-
         /* تأثيرات للرسوم المتحركة */
         @keyframes pulse {
             0% { box-shadow: 0 0 0 0 rgba(67, 97, 238, 0.7); }
@@ -448,6 +352,21 @@
                 height: 60vh;
                 order: -1;
             }
+
+            .graph-info {
+                top: 10px;
+                right: 10px;
+                padding: 12px 15px;
+                min-width: 180px;
+            }
+
+            .graph-info h4 {
+                font-size: 0.9rem;
+            }
+
+            .graph-stat {
+                font-size: 0.85rem;
+            }
         }
 
         @media (max-width: 768px) {
@@ -455,37 +374,61 @@
                 flex-direction: column;
                 padding: 10px;
                 gap: 10px;
+                overflow-y: auto;
+                height: auto;
             }
             
-            .sidebar, .matrix-panel {
+            .sidebar {
                 width: 100%;
                 min-width: unset;
+                order: 2;
+            }
+
+            .matrix-panel {
+                width: 100%;
+                min-width: unset;
+                order: 3;
             }
             
             .main-panel {
-                height: 50vh;
+                height: 65vh;
+                min-height: 400px;
                 min-width: unset;
+                order: 1;
             }
             
             .toolbar {
                 flex-direction: row;
                 border-radius: 15px;
-                padding: 10px;
-                top: 10px;
+                padding: 8px;
+                top: 80px;
                 max-width: 95%;
             }
             
             .toolbar button {
                 padding: 8px 12px;
-                font-size: 0.9rem;
+                font-size: 0.85rem;
             }
             
             .node-item {
-                padding: 10px;
+                padding: 12px;
             }
-            
-            .mobile-mode-btn {
-                display: flex;
+
+            .graph-info {
+                top: 10px;
+                right: 10px;
+                padding: 10px 12px;
+                min-width: 150px;
+            }
+
+            .graph-info h4 {
+                font-size: 0.8rem;
+                margin-bottom: 8px;
+            }
+
+            .graph-stat {
+                font-size: 0.75rem;
+                padding: 4px 0;
             }
         }
 
@@ -495,6 +438,7 @@
                 height: 100vh;
                 padding: 8px;
                 gap: 8px;
+                overflow: hidden;
             }
             
             .sidebar, .matrix-panel {
@@ -532,37 +476,43 @@
                 font-size: 1.2rem;
                 margin-bottom: 15px;
             }
-            
-            .info-panel {
-                width: 90%;
-                padding: 15px;
+
+            .graph-info {
+                top: 8px;
+                right: 8px;
+                padding: 8px 10px;
+                min-width: 140px;
             }
-            
-            .mobile-mode-btn {
-                display: flex;
+
+            .graph-info h4 {
+                font-size: 0.75rem;
+            }
+
+            .graph-stat {
+                font-size: 0.7rem;
             }
         }
 
         /* شريط التمرير المخصص */
-        .node-list::-webkit-scrollbar,
-        .nodes-info::-webkit-scrollbar {
+        .sidebar::-webkit-scrollbar,
+        #adjacency-matrix::-webkit-scrollbar {
             width: 8px;
         }
 
-        .node-list::-webkit-scrollbar-track,
-        .nodes-info::-webkit-scrollbar-track {
+        .sidebar::-webkit-scrollbar-track,
+        #adjacency-matrix::-webkit-scrollbar-track {
             background: rgba(255, 255, 255, 0.1);
             border-radius: 10px;
         }
 
-        .node-list::-webkit-scrollbar-thumb,
-        .nodes-info::-webkit-scrollbar-thumb {
+        .sidebar::-webkit-scrollbar-thumb,
+        #adjacency-matrix::-webkit-scrollbar-thumb {
             background: var(--primary);
             border-radius: 10px;
         }
 
-        .node-list::-webkit-scrollbar-thumb:hover,
-        .nodes-info::-webkit-scrollbar-thumb:hover {
+        .sidebar::-webkit-scrollbar-thumb:hover,
+        #adjacency-matrix::-webkit-scrollbar-thumb:hover {
             background: var(--secondary);
         }
 
@@ -583,6 +533,29 @@
             box-shadow: 0 0 15px var(--primary);
             transition: transform 0.1s ease;
         }
+
+        /* مؤشر النقر المزدوج */
+        .double-tap-indicator {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 3px solid var(--warning);
+            pointer-events: none;
+            z-index: 999;
+            animation: ripple 0.6s ease-out;
+        }
+
+        @keyframes ripple {
+            0% {
+                transform: scale(0.8);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1.5);
+                opacity: 0;
+            }
+        }
     </style>
 </head>
 <body>
@@ -598,17 +571,43 @@
                 </div>
             </div>
 
-            <!-- قسم معلومات العقد -->
-            <div class="nodes-info">
-                <h3><i class="fas fa-info-circle"></i> معلومات العقد</h3>
-                <div id="nodes-info-container">
-                    <div class="no-nodes">لا توجد عقد في البيان بعد</div>
+            <!-- قسم معلومات العقدة المحددة -->
+            <div class="selected-node-info" id="selected-node-info">
+                <h3><i class="fas fa-info-circle"></i> العقدة المحددة</h3>
+                <div class="info-item">
+                    <span class="info-label">الاسم:</span>
+                    <span class="info-value" id="selected-node-name">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">الدرجة:</span>
+                    <span class="info-value" id="selected-node-degree">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">المجاورة:</span>
+                    <span class="info-value" id="selected-node-neighbors">-</span>
                 </div>
             </div>
         </div>
 
         <!-- اللوحة الرئيسية -->
         <div class="main-panel">
+            <!-- معلومات البيان -->
+            <div class="graph-info">
+                <h4><i class="fas fa-chart-line"></i> معلومات البيان</h4>
+                <div class="graph-stat">
+                    <span class="graph-stat-label">رتبة البيان:</span>
+                    <span class="graph-stat-value" id="graph-order">0</span>
+                </div>
+                <div class="graph-stat">
+                    <span class="graph-stat-label">درجة البيان:</span>
+                    <span class="graph-stat-value" id="graph-degree">0</span>
+                </div>
+                <div class="graph-stat">
+                    <span class="graph-stat-label">قابل للحل:</span>
+                    <span class="graph-stat-value" id="graph-solvable">نعم</span>
+                </div>
+            </div>
+
             <!-- شريط الأدوات -->
             <div class="toolbar">
                 <button id="dfs-btn">
@@ -627,26 +626,6 @@
 
             <!-- لوحة الرسم -->
             <canvas id="graph-canvas"></canvas>
-
-            <!-- نافذة المعلومات -->
-            <div class="info-panel">
-                <button class="close-btn">&times;</button>
-                <h3>معلومات العقدة</h3>
-                <div class="info-content">
-                    <div class="info-item">
-                        <span>اسم العقدة:</span>
-                        <span id="node-name">-</span>
-                    </div>
-                    <div class="info-item">
-                        <span>درجة العقدة:</span>
-                        <span id="node-degree">-</span>
-                    </div>
-                    <div class="info-item">
-                        <span>العقد المجاورة:</span>
-                        <span id="node-neighbors">-</span>
-                    </div>
-                </div>
-            </div>
         </div>
 
         <!-- لوحة مصفوفة التجاور -->
@@ -658,26 +637,8 @@
         </div>
     </div>
 
-    <!-- القائمة السياقية للهاتف -->
-    <div class="context-menu" id="context-menu">
-        <button id="node-info-btn">
-            <i class="fas fa-info-circle"></i> معلومات العقدة
-        </button>
-        <button id="connect-node-btn">
-            <i class="fas fa-link"></i> توصيل العقدة
-        </button>
-        <button id="delete-node-btn" class="delete-btn">
-            <i class="fas fa-trash"></i> حذف العقدة
-        </button>
-        <button id="delete-edge-btn" class="delete-btn">
-            <i class="fas fa-unlink"></i> حذف الوصلة
-        </button>
-    </div>
-
-    <!-- زر وضع الهاتف -->
-    <button class="mobile-mode-btn" id="mobile-mode-btn">
-        <i class="fas fa-mobile-alt"></i>
-    </button>
+    <!-- مؤشر السحب -->
+    <div class="drag-indicator" style="display: none;"></div>
 
     <!-- SVG للأسهم -->
     <svg style="position: absolute; width: 0; height: 0;">
@@ -694,7 +655,6 @@
             nodes: [],
             edges: [],
             selectedNode: null,
-            isDrawingEdge: false,
             nodeCounter: 0,
             nodeNames: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'],
             isDraggingNode: false,
@@ -703,49 +663,26 @@
             dragOffsetY: 0,
             activeTouch: null,
             isAddingNode: false,
-            mobileMode: false,
-            contextMenuTarget: null,
-            contextMenuType: null // 'node' أو 'edge'
+            lastTapTime: 0,
+            lastTapTarget: null,
+            doubleTapDelay: 300,
+            isRunningAlgorithm: false
         };
 
         // العناصر الرئيسية
         const canvas = document.getElementById('graph-canvas');
         const ctx = canvas.getContext('2d');
         const matrixContainer = document.getElementById('adjacency-matrix');
-        const infoPanel = document.querySelector('.info-panel');
-        const closeBtn = document.querySelector('.close-btn');
-        const nodesInfoContainer = document.getElementById('nodes-info-container');
-        const contextMenu = document.getElementById('context-menu');
-        const mobileModeBtn = document.getElementById('mobile-mode-btn');
-
-        // مؤشر السحب
-        const dragIndicator = document.createElement('div');
-        dragIndicator.className = 'drag-indicator';
-        dragIndicator.style.display = 'none';
-        document.body.appendChild(dragIndicator);
+        const selectedNodeInfo = document.getElementById('selected-node-info');
+        const dragIndicator = document.querySelector('.drag-indicator');
 
         // تهيئة اللوحة
         function initCanvas() {
             resizeCanvas();
             window.addEventListener('resize', resizeCanvas);
-            
-            // إضافة مستمعي الأحداث
             setupEventListeners();
-            
-            // الكشف عن نوع الجهاز
-            detectDeviceType();
-            
-            // رسم اللوحة
             draw();
-        }
-
-        // الكشف عن نوع الجهاز
-        function detectDeviceType() {
-            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            if (isMobile) {
-                state.mobileMode = true;
-                mobileModeBtn.classList.add('active');
-            }
+            updateGraphInfo();
         }
 
         // تغيير حجم اللوحة
@@ -757,22 +694,20 @@
 
         // إعداد مستمعي الأحداث
         function setupEventListeners() {
-            // أحداث اللمس للعقد الجانبية
+            // أحداث العقد الجانبية
             document.querySelectorAll('.node-item').forEach(item => {
                 item.addEventListener('touchstart', handleNodeTouchStart, { passive: false });
+                item.addEventListener('touchmove', handleNodeTouchMove, { passive: false });
                 item.addEventListener('touchend', handleNodeTouchEnd, { passive: false });
-                
-                // أحداث الماوس للعقد الجانبية (للكمبيوتر)
                 item.addEventListener('mousedown', handleNodeMouseDown);
             });
 
-            // أحداث اللمس للوحة الرسم
+            // أحداث اللوحة
             canvas.addEventListener('touchstart', handleCanvasTouchStart, { passive: false });
             canvas.addEventListener('touchmove', handleCanvasTouchMove, { passive: false });
             canvas.addEventListener('touchend', handleCanvasTouchEnd, { passive: false });
             canvas.addEventListener('touchcancel', handleCanvasTouchEnd, { passive: false });
 
-            // أحداث الماوس للوحة الرسم (للكمبيوتر)
             canvas.addEventListener('mousedown', handleCanvasMouseDown);
             canvas.addEventListener('mousemove', handleCanvasMouseMove);
             canvas.addEventListener('mouseup', handleCanvasMouseUp);
@@ -780,182 +715,96 @@
             canvas.addEventListener('click', handleCanvasClick);
             canvas.addEventListener('contextmenu', handleRightClick);
 
-            // أحداث الماوس للوثيقة (للسحب من القائمة الجانبية على الكمبيوتر)
             document.addEventListener('mousemove', handleDocumentMouseMove);
             document.addEventListener('mouseup', handleDocumentMouseUp);
-
-            // زر إغلاق نافذة المعلومات
-            closeBtn.addEventListener('click', () => {
-                infoPanel.style.display = 'none';
-            });
 
             // أزرار الأدوات
             document.getElementById('dfs-btn').addEventListener('click', runDFS);
             document.getElementById('bfs-btn').addEventListener('click', runBFS);
             document.getElementById('complement-btn').addEventListener('click', createComplement);
             document.getElementById('clear-btn').addEventListener('click', clearGraph);
-
-            // أحداث القائمة السياقية
-            document.getElementById('node-info-btn').addEventListener('click', handleNodeInfo);
-            document.getElementById('connect-node-btn').addEventListener('click', handleConnectNode);
-            document.getElementById('delete-node-btn').addEventListener('click', handleDeleteNode);
-            document.getElementById('delete-edge-btn').addEventListener('click', handleDeleteEdge);
-
-            // زر وضع الهاتف
-            mobileModeBtn.addEventListener('click', toggleMobileMode);
-
-            // إغلاق القائمة السياقية عند النقر خارجها
-            document.addEventListener('click', (e) => {
-                if (!contextMenu.contains(e.target)) {
-                    hideContextMenu();
-                }
-            });
-        }
-
-        // تبديل وضع الهاتف
-        function toggleMobileMode() {
-            state.mobileMode = !state.mobileMode;
-            mobileModeBtn.classList.toggle('active', state.mobileMode);
-            
-            if (state.mobileMode) {
-                mobileModeBtn.innerHTML = '<i class="fas fa-mobile-alt"></i>';
-            } else {
-                mobileModeBtn.innerHTML = '<i class="fas fa-desktop"></i>';
-            }
-        }
-
-        // إظهار القائمة السياقية
-        function showContextMenu(x, y, type, target) {
-            state.contextMenuTarget = target;
-            state.contextMenuType = type;
-            
-            // ضبط موقع القائمة
-            contextMenu.style.left = `${x}px`;
-            contextMenu.style.top = `${y}px`;
-            contextMenu.style.display = 'block';
-            
-            // إظهار الأزرار المناسبة حسب النوع
-            document.getElementById('node-info-btn').style.display = type === 'node' ? 'flex' : 'none';
-            document.getElementById('connect-node-btn').style.display = type === 'node' ? 'flex' : 'none';
-            document.getElementById('delete-node-btn').style.display = type === 'node' ? 'flex' : 'none';
-            document.getElementById('delete-edge-btn').style.display = type === 'edge' ? 'flex' : 'none';
-        }
-
-        // إخفاء القائمة السياقية
-        function hideContextMenu() {
-            contextMenu.style.display = 'none';
-            state.contextMenuTarget = null;
-            state.contextMenuType = null;
-        }
-
-        // معالجة معلومات العقدة من القائمة السياقية
-        function handleNodeInfo() {
-            if (state.contextMenuType === 'node') {
-                showNodeInfo(state.contextMenuTarget);
-                hideContextMenu();
-            }
-        }
-
-        // معالجة توصيل العقدة من القائمة السياقية
-        function handleConnectNode() {
-            if (state.contextMenuType === 'node') {
-                if (state.selectedNode && state.selectedNode !== state.contextMenuTarget) {
-                    addEdge(state.selectedNode, state.contextMenuTarget);
-                    state.selectedNode = null;
-                } else {
-                    state.selectedNode = state.contextMenuTarget;
-                }
-                draw();
-                updateNodesInfo();
-                hideContextMenu();
-            }
-        }
-
-        // معالجة حذف العقدة من القائمة السياقية
-        function handleDeleteNode() {
-            if (state.contextMenuType === 'node') {
-                deleteNode(state.contextMenuTarget);
-                hideContextMenu();
-            }
-        }
-
-        // معالجة حذف الوصلة من القائمة السياقية
-        function handleDeleteEdge() {
-            if (state.contextMenuType === 'edge') {
-                deleteEdge(state.contextMenuTarget);
-                hideContextMenu();
-            }
         }
 
         // توليد اسم عقدة جديد
         function generateNodeName() {
-            // استخدام الحروف الأبجدية أولاً
             if (state.nodeCounter < state.nodeNames.length) {
                 return state.nodeNames[state.nodeCounter];
             }
-            // إذا تجاوزنا الحروف، نستخدم أرقام
             return `N${state.nodeCounter - state.nodeNames.length + 1}`;
         }
 
-        // تحديث معلومات العقد في القائمة الجانبية
-        function updateNodesInfo() {
-            if (state.nodes.length === 0) {
-                nodesInfoContainer.innerHTML = '<div class="no-nodes">لا توجد عقد في البيان بعد</div>';
-                return;
-            }
-
-            let html = '';
-            state.nodes.forEach(node => {
-                // حساب درجة العقدة
-                const degree = state.edges.filter(edge => 
-                    edge.source === node || edge.target === node
-                ).length;
+        // تحديث معلومات العقدة المحددة
+        function updateSelectedNodeInfo() {
+            if (state.selectedNode) {
+                selectedNodeInfo.classList.add('active');
                 
-                // العثور على العقد المجاورة
+                document.getElementById('selected-node-name').textContent = state.selectedNode.name;
+                
+                const degree = state.edges.filter(edge => 
+                    edge.source === state.selectedNode || edge.target === state.selectedNode
+                ).length;
+                document.getElementById('selected-node-degree').textContent = degree;
+                
                 const neighbors = [];
                 state.edges.forEach(edge => {
-                    if (edge.source === node) {
+                    if (edge.source === state.selectedNode) {
                         neighbors.push(edge.target.name);
-                    } else if (edge.target === node) {
+                    } else if (edge.target === state.selectedNode) {
                         neighbors.push(edge.source.name);
                     }
                 });
+                
+                document.getElementById('selected-node-neighbors').textContent = 
+                    neighbors.length > 0 ? neighbors.join(', ') : 'لا يوجد';
+            } else {
+                selectedNodeInfo.classList.remove('active');
+            }
+        }
 
-                const neighborsText = neighbors.length > 0 ? neighbors.join(', ') : 'لا يوجد';
-
-                html += `
-                    <div class="node-info-item" data-node-id="${node.id}">
-                        <div class="node-info-header">
-                            <span class="node-name">${node.name}</span>
-                            <span class="node-degree">درجة: ${degree}</span>
-                        </div>
-                        <div class="node-neighbors">المجاورة: ${neighborsText}</div>
-                    </div>
-                `;
+        // تحديث معلومات البيان
+        function updateGraphInfo() {
+            // رتبة البيان (عدد العقد)
+            document.getElementById('graph-order').textContent = state.nodes.length;
+            
+            // درجة البيان (أعلى درجة عقدة)
+            let maxDegree = 0;
+            state.nodes.forEach(node => {
+                const degree = state.edges.filter(edge => 
+                    edge.source === node || edge.target === node
+                ).length;
+                maxDegree = Math.max(maxDegree, degree);
             });
-
-            nodesInfoContainer.innerHTML = html;
+            document.getElementById('graph-degree').textContent = maxDegree;
+            
+            // قابلية الحل (البيان الأويلري - جميع العقد لها درجة زوجية)
+            let isSolvable = true;
+            if (state.nodes.length > 0) {
+                state.nodes.forEach(node => {
+                    const degree = state.edges.filter(edge => 
+                        edge.source === node || edge.target === node
+                    ).length;
+                    if (degree % 2 !== 0) {
+                        isSolvable = false;
+                    }
+                });
+            }
+            
+            const solvableElement = document.getElementById('graph-solvable');
+            solvableElement.textContent = isSolvable ? 'نعم' : 'لا';
+            solvableElement.className = 'graph-stat-value ' + (isSolvable ? 'solvable' : 'not-solvable');
         }
 
         // معالجة النقر على العقد الجانبية (للكمبيوتر)
         function handleNodeMouseDown(e) {
             e.preventDefault();
-            
-            // بدء عملية إضافة عقدة
             state.isAddingNode = true;
             const nodeName = generateNodeName();
-            
-            // عرض مؤشر السحب
             dragIndicator.textContent = nodeName;
             dragIndicator.style.display = 'flex';
             updateDragIndicator(e.clientX, e.clientY);
-            
-            // إضافة مستمعي الأحداث للمستند
-            document.addEventListener('mousemove', handleDocumentMouseMove);
-            document.addEventListener('mouseup', handleDocumentMouseUp);
         }
 
-        // معالجة حركة الماوس في المستند (للسحب من القائمة الجانبية)
+        // معالجة حركة الماوس في المستند
         function handleDocumentMouseMove(e) {
             if (state.isAddingNode) {
                 updateDragIndicator(e.clientX, e.clientY);
@@ -965,10 +814,7 @@
         // معالجة رفع الماوس في المستند
         function handleDocumentMouseUp(e) {
             if (state.isAddingNode) {
-                // إخفاء مؤشر السحب
                 dragIndicator.style.display = 'none';
-                
-                // إضافة العقدة إلى اللوحة إذا كان الماوس فوقها
                 const rect = canvas.getBoundingClientRect();
                 const x = e.clientX - rect.left;
                 const y = e.clientY - rect.top;
@@ -978,17 +824,13 @@
                 }
                 
                 state.isAddingNode = false;
-                
-                // إزالة مستمعي الأحداث
-                document.removeEventListener('mousemove', handleDocumentMouseMove);
-                document.removeEventListener('mouseup', handleDocumentMouseUp);
             }
         }
 
         // معالجة لمس العقد الجانبية
         function handleNodeTouchStart(e) {
             e.preventDefault();
-            if (state.activeTouch) return; // منع اللمسات المتعددة
+            if (state.activeTouch) return;
             
             const touch = e.touches[0];
             const nodeName = generateNodeName();
@@ -998,9 +840,19 @@
                 identifier: touch.identifier
             };
 
-            // عرض مؤشر السحب
             dragIndicator.textContent = nodeName;
             dragIndicator.style.display = 'flex';
+            updateDragIndicator(touch.clientX, touch.clientY);
+        }
+
+        // معالجة حركة لمس العقد الجانبية
+        function handleNodeTouchMove(e) {
+            if (!state.activeTouch || state.activeTouch.type !== 'sidebar') return;
+            
+            const touch = Array.from(e.touches).find(t => t.identifier === state.activeTouch.identifier);
+            if (!touch) return;
+            
+            e.preventDefault();
             updateDragIndicator(touch.clientX, touch.clientY);
         }
 
@@ -1011,10 +863,7 @@
             const touch = e.changedTouches[0];
             if (touch.identifier !== state.activeTouch.identifier) return;
 
-            // إخفاء مؤشر السحب
             dragIndicator.style.display = 'none';
-            
-            // إضافة العقدة إلى اللوحة
             const rect = canvas.getBoundingClientRect();
             const x = touch.clientX - rect.left;
             const y = touch.clientY - rect.top;
@@ -1039,46 +888,47 @@
             const clickedNode = findNodeAt(x, y);
             const clickedEdge = findEdgeAt(x, y);
             
-            if (state.mobileMode) {
-                // في وضع الهاتف، نعرض القائمة السياقية بدلاً من التنفيذ المباشر
-                if (clickedNode) {
-                    state.activeTouch = {
-                        type: 'canvas',
-                        node: clickedNode,
-                        identifier: touch.identifier,
-                        startX: x,
-                        startY: y
-                    };
-                    
-                    // عرض القائمة السياقية للعقدة
-                    showContextMenu(touch.clientX, touch.clientY, 'node', clickedNode);
-                } else if (clickedEdge) {
-                    // عرض القائمة السياقية للوصلة
-                    showContextMenu(touch.clientX, touch.clientY, 'edge', clickedEdge);
-                } else {
-                    // النقر على منطقة فارغة - إخفاء القائمة السياقية
-                    hideContextMenu();
+            // التحقق من النقر المزدوج
+            const currentTime = Date.now();
+            const timeDiff = currentTime - state.lastTapTime;
+            
+            if (timeDiff < state.doubleTapDelay) {
+                // نقرة مزدوجة
+                if (clickedNode && state.lastTapTarget === clickedNode) {
+                    showDoubleTapIndicator(touch.clientX, touch.clientY);
+                    deleteNode(clickedNode);
+                    state.lastTapTime = 0;
+                    state.lastTapTarget = null;
+                    return;
+                } else if (clickedEdge && state.lastTapTarget === clickedEdge) {
+                    showDoubleTapIndicator(touch.clientX, touch.clientY);
+                    deleteEdge(clickedEdge);
+                    state.lastTapTime = 0;
+                    state.lastTapTarget = null;
+                    return;
                 }
+            }
+            
+            // نقرة واحدة
+            state.lastTapTime = currentTime;
+            state.lastTapTarget = clickedNode || clickedEdge;
+            
+            if (clickedNode) {
+                state.activeTouch = {
+                    type: 'canvas',
+                    node: clickedNode,
+                    identifier: touch.identifier,
+                    startX: x,
+                    startY: y,
+                    hasMoved: false
+                };
+                
+                // لا نقوم بالتحديد أو الربط هنا، ننتظر touchend
             } else {
-                // في وضع الكمبيوتر، نستخدم السلوك الأصلي
-                if (clickedNode) {
-                    state.activeTouch = {
-                        type: 'canvas',
-                        node: clickedNode,
-                        identifier: touch.identifier,
-                        startX: x,
-                        startY: y
-                    };
-                    
-                    // بدء سحب العقدة
-                    state.isDraggingNode = true;
-                    state.dragNode = clickedNode;
-                    state.dragOffsetX = x - clickedNode.x;
-                    state.dragOffsetY = y - clickedNode.y;
-                } else {
-                    // النقر على منطقة فارغة
-                    handleCanvasClick({ clientX: touch.clientX, clientY: touch.clientY });
-                }
+                // النقر على منطقة فارغة - إلغاء التحديد
+                state.selectedNode = null;
+                updateSelectedNodeInfo();
+                draw();
             }
         }
 
@@ -1095,16 +945,21 @@
             const x = touch.clientX - rect.left;
             const y = touch.clientY - rect.top;
             
-            if (state.isDraggingNode && state.dragNode) {
-                // تحديث موقع العقدة المسحوبة
-                state.dragNode.x = x - state.dragOffsetX;
-                state.dragNode.y = y - state.dragOffsetY;
-                draw();
+            // التحقق من الحركة
+            const moveDistance = Math.sqrt(
+                Math.pow(x - state.activeTouch.startX, 2) + 
+                Math.pow(y - state.activeTouch.startY, 2)
+            );
+            
+            if (moveDistance > 5) {
+                state.activeTouch.hasMoved = true;
             }
             
-            // تحديث مؤشر السحب إذا كان مرئيًا
-            if (dragIndicator.style.display !== 'none') {
-                updateDragIndicator(touch.clientX, touch.clientY);
+            // السماح بسحب العقدة
+            if (state.activeTouch.node && state.activeTouch.hasMoved) {
+                state.activeTouch.node.x = x;
+                state.activeTouch.node.y = y;
+                draw();
             }
         }
 
@@ -1115,25 +970,28 @@
             const touch = Array.from(e.changedTouches).find(t => t.identifier === state.activeTouch.identifier);
             if (!touch) return;
             
-            const rect = canvas.getBoundingClientRect();
-            const x = touch.clientX - rect.left;
-            const y = touch.clientY - rect.top;
-            
-            if (state.isDraggingNode) {
-                // إنهاء سحب العقدة
-                state.isDraggingNode = false;
-                state.dragNode = null;
-                updateAdjacencyMatrix();
-                updateNodesInfo();
-            } else if (!state.mobileMode) {
-                // معالجة النقر العادي (في وضع الكمبيوتر فقط)
-                handleCanvasClick({ clientX: touch.clientX, clientY: touch.clientY });
+            // إذا لم تكن هناك حركة، نعتبرها نقرة
+            if (!state.activeTouch.hasMoved && state.activeTouch.node) {
+                const clickedNode = state.activeTouch.node;
+                
+                // تحديد العقدة أو ربطها
+                if (state.selectedNode && state.selectedNode !== clickedNode) {
+                    addEdge(state.selectedNode, clickedNode);
+                    state.selectedNode = null;
+                } else {
+                    state.selectedNode = clickedNode;
+                }
+                
+                updateSelectedNodeInfo();
+                draw();
             }
             
+            updateAdjacencyMatrix();
+            updateGraphInfo();
             state.activeTouch = null;
         }
 
-        // معالجة أحداث الماوس للوحة الرسم (للكمبيوتر)
+        // معالجة أحداث الماوس للوحة الرسم
         function handleCanvasMouseDown(e) {
             const rect = canvas.getBoundingClientRect();
             const x = e.clientX - rect.left;
@@ -1166,8 +1024,66 @@
                 state.isDraggingNode = false;
                 state.dragNode = null;
                 updateAdjacencyMatrix();
-                updateNodesInfo();
+                updateGraphInfo();
             }
+        }
+
+        // معالجة النقر على اللوحة
+        function handleCanvasClick(e) {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const clickedNode = findNodeAt(x, y);
+            
+            if (clickedNode) {
+                if (state.selectedNode && state.selectedNode !== clickedNode) {
+                    addEdge(state.selectedNode, clickedNode);
+                    state.selectedNode = null;
+                } else {
+                    state.selectedNode = state.selectedNode === clickedNode ? null : clickedNode;
+                }
+                
+                updateSelectedNodeInfo();
+            } else {
+                state.selectedNode = null;
+                updateSelectedNodeInfo();
+            }
+            
+            draw();
+        }
+
+        // معالجة النقر بالزر الأيمن
+        function handleRightClick(e) {
+            e.preventDefault();
+            
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const clickedNode = findNodeAt(x, y);
+            const clickedEdge = findEdgeAt(x, y);
+            
+            if (clickedNode) {
+                deleteNode(clickedNode);
+            } else if (clickedEdge) {
+                deleteEdge(clickedEdge);
+            }
+            
+            draw();
+        }
+
+        // إظهار مؤشر النقر المزدوج
+        function showDoubleTapIndicator(x, y) {
+            const indicator = document.createElement('div');
+            indicator.className = 'double-tap-indicator';
+            indicator.style.left = (x - 30) + 'px';
+            indicator.style.top = (y - 30) + 'px';
+            document.body.appendChild(indicator);
+            
+            setTimeout(() => {
+                document.body.removeChild(indicator);
+            }, 600);
         }
 
         // تحديث مؤشر السحب
@@ -1189,67 +1105,8 @@
             
             state.nodes.push(node);
             updateAdjacencyMatrix();
-            updateNodesInfo();
+            updateGraphInfo();
             draw();
-        }
-
-        // معالجة النقر على اللوحة
-        function handleCanvasClick(e) {
-            const rect = canvas.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            
-            // التحقق من النقر على عقدة
-            const clickedNode = findNodeAt(x, y);
-            
-            if (clickedNode) {
-                if (state.selectedNode && state.selectedNode !== clickedNode) {
-                    // إنشاء وصلة بين العقدتين المحددتين
-                    addEdge(state.selectedNode, clickedNode);
-                    state.selectedNode = null;
-                } else {
-                    // تحديد العقدة أو إلغاء تحديدها
-                    state.selectedNode = state.selectedNode === clickedNode ? null : clickedNode;
-                }
-                
-                // عرض معلومات العقدة
-                if (state.selectedNode) {
-                    showNodeInfo(state.selectedNode);
-                } else {
-                    infoPanel.style.display = 'none';
-                }
-            } else {
-                // إلغاء تحديد العقدة إذا تم النقر على مكان فارغ
-                state.selectedNode = null;
-                infoPanel.style.display = 'none';
-            }
-            
-            draw();
-            updateNodesInfo();
-        }
-
-        // معالجة النقر بالزر الأيمن
-        function handleRightClick(e) {
-            e.preventDefault();
-            
-            const rect = canvas.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            
-            // التحقق من النقر على عقدة أو وصلة
-            const clickedNode = findNodeAt(x, y);
-            const clickedEdge = findEdgeAt(x, y);
-            
-            if (clickedNode) {
-                // حذف العقدة والوصلات المرتبطة بها
-                deleteNode(clickedNode);
-            } else if (clickedEdge) {
-                // حذف الوصلة
-                deleteEdge(clickedEdge);
-            }
-            
-            draw();
-            updateNodesInfo();
         }
 
         // إيجاد عقدة في موقع معين
@@ -1269,7 +1126,7 @@
             for (const edge of state.edges) {
                 const { source, target } = edge;
                 const distance = distanceToLineSegment(x, y, source.x, source.y, target.x, target.y);
-                if (distance <= 5) {
+                if (distance <= 8) {
                     return edge;
                 }
             }
@@ -1312,7 +1169,6 @@
 
         // إضافة وصلة
         function addEdge(source, target) {
-            // التأكد من عدم وجود وصلة مسبقة بين العقدتين
             const existingEdge = state.edges.find(edge => 
                 (edge.source === source && edge.target === target) || 
                 (edge.source === target && edge.target === source)
@@ -1325,60 +1181,34 @@
                     color: '#4895ef'
                 });
                 updateAdjacencyMatrix();
-                updateNodesInfo();
+                updateGraphInfo();
             }
         }
 
         // حذف عقدة
         function deleteNode(node) {
-            // حذف جميع الوصلات المرتبطة بالعقدة
             state.edges = state.edges.filter(edge => 
                 edge.source !== node && edge.target !== node
             );
             
-            // حذف العقدة
             state.nodes = state.nodes.filter(n => n !== node);
             
-            // إلغاء تحديد العقدة إذا كانت محددة
             if (state.selectedNode === node) {
                 state.selectedNode = null;
-                infoPanel.style.display = 'none';
+                updateSelectedNodeInfo();
             }
             
             updateAdjacencyMatrix();
-            updateNodesInfo();
+            updateGraphInfo();
+            draw();
         }
 
         // حذف وصلة
         function deleteEdge(edge) {
             state.edges = state.edges.filter(e => e !== edge);
             updateAdjacencyMatrix();
-            updateNodesInfo();
-        }
-
-        // عرض معلومات العقدة
-        function showNodeInfo(node) {
-            document.getElementById('node-name').textContent = node.name;
-            
-            // حساب درجة العقدة
-            const degree = state.edges.filter(edge => 
-                edge.source === node || edge.target === node
-            ).length;
-            
-            document.getElementById('node-degree').textContent = degree;
-            
-            // العثور على العقد المجاورة
-            const neighbors = [];
-            state.edges.forEach(edge => {
-                if (edge.source === node) {
-                    neighbors.push(edge.target.name);
-                } else if (edge.target === node) {
-                    neighbors.push(edge.source.name);
-                }
-            });
-            
-            document.getElementById('node-neighbors').textContent = neighbors.join(', ');
-            infoPanel.style.display = 'block';
+            updateGraphInfo();
+            draw();
         }
 
         // تحديث مصفوفة التجاور
@@ -1388,34 +1218,27 @@
                 return;
             }
             
-            // إنشاء مصفوفة التجاور
             const matrix = [];
             const n = state.nodes.length;
             
-            // تهيئة المصفوفة بالأصفار
             for (let i = 0; i < n; i++) {
                 matrix[i] = Array(n).fill(0);
             }
             
-            // ملء المصفوفة بناءً على الوصلات
             state.edges.forEach(edge => {
                 const i = state.nodes.indexOf(edge.source);
                 const j = state.nodes.indexOf(edge.target);
                 matrix[i][j] = 1;
-                matrix[j][i] = 1; // البيان غير موجه
+                matrix[j][i] = 1;
             });
             
-            // عرض المصفوفة من اليسار لليمين
             let html = '<table class="matrix-table">';
-            
-            // رأس الجدول (أسماء العقد)
             html += '<tr><th></th>';
             state.nodes.forEach(node => {
                 html += `<th>${node.name}</th>`;
             });
             html += '</tr>';
             
-            // صفوف المصفوفة
             for (let i = 0; i < n; i++) {
                 html += `<tr><th>${state.nodes[i].name}</th>`;
                 for (let j = 0; j < n; j++) {
@@ -1434,15 +1257,12 @@
 
         // رسم اللوحة
         function draw() {
-            // مسح اللوحة
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // رسم الوصلات
             state.edges.forEach(edge => {
                 drawEdge(edge);
             });
             
-            // رسم العقد
             state.nodes.forEach(node => {
                 drawNode(node);
             });
@@ -1453,7 +1273,6 @@
             ctx.beginPath();
             ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
             
-            // إذا كانت العقدة محددة، ارسمها بلون مختلف
             if (node === state.selectedNode) {
                 ctx.fillStyle = '#f8961e';
                 ctx.shadowColor = '#f8961e';
@@ -1467,7 +1286,6 @@
             ctx.fill();
             ctx.shadowBlur = 0;
             
-            // نص العقدة
             ctx.fillStyle = 'white';
             ctx.font = 'bold 16px Arial';
             ctx.textAlign = 'center';
@@ -1486,14 +1304,10 @@
             ctx.lineWidth = 3;
             ctx.stroke();
             
-            // رسم رأس السهم في منتصف الوصلة
             const midX = (source.x + target.x) / 2;
             const midY = (source.y + target.y) / 2;
-            
-            // حساب زاوية الوصلة
             const angle = Math.atan2(target.y - source.y, target.x - source.x);
             
-            // رسم رأس السهم
             ctx.save();
             ctx.translate(midX, midY);
             ctx.rotate(angle);
@@ -1510,92 +1324,96 @@
         }
 
         // تشغيل خوارزمية DFS
-        function runDFS() {
-            if (state.nodes.length === 0) return;
+        async function runDFS() {
+            if (state.nodes.length === 0 || state.isRunningAlgorithm) return;
             
-            // إعادة تعيين ألوان العقد
+            state.isRunningAlgorithm = true;
+            
+            // إعادة تعيين الألوان
             state.nodes.forEach(node => {
                 node.color = '#4361ee';
             });
+            draw();
             
-            // البدء من العقدة الأولى
             const startNode = state.nodes[0];
             const visited = new Set();
+            const stack = [startNode];
             
-            // تنفيذ DFS
-            function dfs(node) {
-                visited.add(node);
-                node.color = '#4cc9f0';
-                draw();
+            while (stack.length > 0) {
+                const currentNode = stack.pop();
                 
-                // العثور على العقد المجاورة
-                const neighbors = [];
-                state.edges.forEach(edge => {
-                    if (edge.source === node && !visited.has(edge.target)) {
-                        neighbors.push(edge.target);
-                    } else if (edge.target === node && !visited.has(edge.source)) {
-                        neighbors.push(edge.source);
+                if (!visited.has(currentNode)) {
+                    visited.add(currentNode);
+                    currentNode.color = '#4cc9f0';
+                    draw();
+                    
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    
+                    // إضافة الجيران غير المزارين إلى المكدس
+                    const neighbors = [];
+                    state.edges.forEach(edge => {
+                        if (edge.source === currentNode && !visited.has(edge.target)) {
+                            neighbors.push(edge.target);
+                        } else if (edge.target === currentNode && !visited.has(edge.source)) {
+                            neighbors.push(edge.source);
+                        }
+                    });
+                    
+                    // إضافة الجيران بترتيب عكسي للحصول على الترتيب الصحيح
+                    for (let i = neighbors.length - 1; i >= 0; i--) {
+                        if (!visited.has(neighbors[i])) {
+                            stack.push(neighbors[i]);
+                        }
                     }
-                });
-                
-                // زيارة كل جار
-                neighbors.forEach(neighbor => {
-                    if (!visited.has(neighbor)) {
-                        setTimeout(() => dfs(neighbor), 1000);
-                    }
-                });
+                }
             }
             
-            dfs(startNode);
+            state.isRunningAlgorithm = false;
         }
 
         // تشغيل خوارزمية BFS
-        function runBFS() {
-            if (state.nodes.length === 0) return;
+        async function runBFS() {
+            if (state.nodes.length === 0 || state.isRunningAlgorithm) return;
             
-            // إعادة تعيين ألوان العقد
+            state.isRunningAlgorithm = true;
+            
+            // إعادة تعيين الألوان
             state.nodes.forEach(node => {
                 node.color = '#4361ee';
             });
+            draw();
             
-            // البدء من العقدة الأولى
             const startNode = state.nodes[0];
             const visited = new Set();
             const queue = [startNode];
             visited.add(startNode);
             
-            let index = 0;
-            
-            function processNext() {
-                if (index < queue.length) {
-                    const currentNode = queue[index];
-                    currentNode.color = '#4cc9f0';
-                    draw();
-                    
-                    // العثور على العقد المجاورة
-                    state.edges.forEach(edge => {
-                        if (edge.source === currentNode && !visited.has(edge.target)) {
-                            visited.add(edge.target);
-                            queue.push(edge.target);
-                        } else if (edge.target === currentNode && !visited.has(edge.source)) {
-                            visited.add(edge.source);
-                            queue.push(edge.source);
-                        }
-                    });
-                    
-                    index++;
-                    setTimeout(processNext, 1000);
-                }
+            while (queue.length > 0) {
+                const currentNode = queue.shift();
+                currentNode.color = '#4cc9f0';
+                draw();
+                
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // إضافة الجيران غير المزارين إلى الطابور
+                state.edges.forEach(edge => {
+                    if (edge.source === currentNode && !visited.has(edge.target)) {
+                        visited.add(edge.target);
+                        queue.push(edge.target);
+                    } else if (edge.target === currentNode && !visited.has(edge.source)) {
+                        visited.add(edge.source);
+                        queue.push(edge.source);
+                    }
+                });
             }
             
-            processNext();
+            state.isRunningAlgorithm = false;
         }
 
         // إنشاء البيان المتتم
         function createComplement() {
             if (state.nodes.length === 0) return;
             
-            // إنشاء مجموعة من الوصلات الحالية
             const currentEdges = new Set();
             state.edges.forEach(edge => {
                 const key1 = `${edge.source.id}-${edge.target.id}`;
@@ -1604,7 +1422,6 @@
                 currentEdges.add(key2);
             });
             
-            // إنشاء جميع الوصلات الممكنة
             const allPossibleEdges = [];
             for (let i = 0; i < state.nodes.length; i++) {
                 for (let j = i + 1; j < state.nodes.length; j++) {
@@ -1615,15 +1432,16 @@
                 }
             }
             
-            // إنشاء الوصلات للبيان المتتم (جميع الوصلات غير الموجودة في البيان الأصلي)
             state.edges = allPossibleEdges.filter(edge => {
                 const key = `${edge.source.id}-${edge.target.id}`;
                 return !currentEdges.has(key);
-            });
+            }).map(edge => ({
+                ...edge,
+                color: '#4895ef'
+            }));
             
-            // تحديث المصفوفة والرسم
             updateAdjacencyMatrix();
-            updateNodesInfo();
+            updateGraphInfo();
             draw();
         }
 
@@ -1634,9 +1452,8 @@
             state.selectedNode = null;
             state.nodeCounter = 0;
             updateAdjacencyMatrix();
-            updateNodesInfo();
-            infoPanel.style.display = 'none';
-            hideContextMenu();
+            updateSelectedNodeInfo();
+            updateGraphInfo();
             draw();
         }
 
