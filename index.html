@@ -79,7 +79,7 @@
         .node-item {
             background: var(--primary);
             padding: 15px;
-            border-radius: 10px;
+            border-radius: 5px;
             text-align: center;
             cursor: pointer;
             transition: var(--transition);
@@ -165,14 +165,14 @@
         #graph-canvas {
             width: 100%;
             height: 100%;
-            cursor: default;
+            cursor: pointer;
             touch-action: none;
         }
 
         /* لوحة مصفوفة التجاور */
         .matrix-panel {
             width: 300px;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255,255, 0.1);
             backdrop-filter: blur(10px);
             border-radius: 15px;
             padding: 20px;
@@ -262,7 +262,6 @@
 
         .graph-stat-value {
             font-weight: bold;
-            color: var(--success);
         }
 
         .graph-stat-value.solvable {
@@ -270,6 +269,22 @@
         }
 
         .graph-stat-value.not-solvable {
+            color: var(--danger);
+        }
+
+        .graph-stat-value.connected {
+            color: var(--success);
+        }
+
+        .graph-stat-value.disconnected {
+            color: var(--danger);
+        }
+
+        .graph-stat-value.yes {
+            color: var(--success);
+        }
+
+        .graph-stat-value.no {
             color: var(--danger);
         }
 
@@ -323,15 +338,278 @@
             font-size: 1.1rem;
         }
 
+        /* نافذة إدخال وزن الوصلة */
+        .weight-input-container {
+            position: fixed;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            z-index: 2000;
+            display: none;
+            flex-direction: column;
+            gap: 25px;
+            width: 380px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.7);
+            border: 3px solid var(--primary);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .weight-input-container.active {
+            display: flex;
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+            animation: dialogAppear 0.3s ease forwards;
+        }
+
+        @keyframes dialogAppear {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.9);
+            }
+            100% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        .weight-input-container h3 {
+            color: white;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 1.6rem;
+            font-weight: bold;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .weight-input-container p {
+            color: rgba(255, 255, 255, 0.9);
+            text-align: center;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .weight-input {
+            background: rgba(255, 255, 255, 0.15);
+            border: 3px solid var(--primary);
+            border-radius: 15px;
+            padding: 20px;
+            color: white;
+            font-size: 1.8rem;
+            text-align: center;
+            direction: ltr;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            outline: none;
+            letter-spacing: 2px;
+        }
+
+        .weight-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 25px var(--accent);
+            transform: scale(1.02);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .weight-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .weight-btn {
+            flex: 1;
+            padding: 18px;
+            border-radius: 15px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .weight-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .weight-btn:hover::before {
+            left: 100%;
+        }
+
+        .weight-btn.confirm {
+            background: linear-gradient(135deg, var(--success), #00b4d8);
+            color: white;
+        }
+
+        .weight-btn.confirm:hover {
+            background: linear-gradient(135deg, #00b4d8, var(--success));
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(76, 201, 240, 0.4);
+        }
+
+        .weight-btn.cancel {
+            background: linear-gradient(135deg, var(--danger), #b5179e);
+            color: white;
+        }
+
+        .weight-btn.cancel:hover {
+            background: linear-gradient(135deg, #b5179e, var(--danger));
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(247, 37, 133, 0.4);
+        }
+
+        .weight-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* نافذة ترميز بروفير */
+        .prufer-container {
+            position: fixed;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            z-index: 2000;
+            display: none;
+            flex-direction: column;
+            gap: 25px;
+            width: 420px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.7);
+            border: 3px solid var(--warning);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .prufer-container.active {
+            display: flex;
+            opacity: 1;
+            animation: dialogAppear 0.3s ease forwards;
+        }
+
+        .prufer-container h3 {
+            color: var(--warning);
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 1.6rem;
+            font-weight: bold;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .prufer-code {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--success);
+            font-family: 'Courier New', monospace;
+            direction: ltr;
+            letter-spacing: 4px;
+            border: 2px solid var(--warning);
+            margin: 10px 0;
+            text-shadow: 0 0 10px rgba(76, 201, 240, 0.5);
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .prufer-steps {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            max-height: 250px;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .prufer-step {
+            padding: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.6;
+            transition: background 0.3s ease;
+        }
+
+        .prufer-step:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .prufer-step:last-child {
+            border-bottom: none;
+        }
+
+        .prufer-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        /* طبقة الحماية */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            z-index: 1999;
+            display: none;
+        }
+
+        .overlay.active {
+            display: block;
+            animation: fadeIn 0.3s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
         /* تأثيرات للرسوم المتحركة */
         @keyframes pulse {
             0% { box-shadow: 0 0 0 0 rgba(67, 97, 238, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(67, 97, 238, 0); }
+            70% { box-shadow: 0 0 0 20px rgba(67, 97, 238, 0); }
             100% { box-shadow: 0 0 0 0 rgba(67, 97, 238, 0); }
         }
 
         .pulse {
             animation: pulse 2s infinite;
+        }
+
+        @keyframes highlight {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .highlight {
+            animation: highlight 0.5s ease;
         }
 
         /* تأثيرات الاستجابة */
@@ -366,6 +644,12 @@
 
             .graph-stat {
                 font-size: 0.85rem;
+            }
+
+            .weight-input-container,
+            .prufer-container {
+                width: 340px;
+                padding: 25px;
             }
         }
 
@@ -430,6 +714,12 @@
                 font-size: 0.75rem;
                 padding: 4px 0;
             }
+
+            .weight-input-container,
+            .prufer-container {
+                width: 300px;
+                padding: 20px;
+            }
         }
 
         @media (max-width: 480px) and (orientation: landscape) {
@@ -491,28 +781,38 @@
             .graph-stat {
                 font-size: 0.7rem;
             }
+
+            .weight-input-container,
+            .prufer-container {
+                width: 280px;
+                padding: 18px;
+            }
         }
 
         /* شريط التمرير المخصص */
         .sidebar::-webkit-scrollbar,
-        #adjacency-matrix::-webkit-scrollbar {
+        #adjacency-matrix::-webkit-scrollbar,
+        .prufer-steps::-webkit-scrollbar {
             width: 8px;
         }
 
         .sidebar::-webkit-scrollbar-track,
-        #adjacency-matrix::-webkit-scrollbar-track {
+        #adjacency-matrix::-webkit-scrollbar-track,
+        .prufer-steps::-webkit-scrollbar-track {
             background: rgba(255, 255, 255, 0.1);
             border-radius: 10px;
         }
 
         .sidebar::-webkit-scrollbar-thumb,
-        #adjacency-matrix::-webkit-scrollbar-thumb {
+        #adjacency-matrix::-webkit-scrollbar-thumb,
+        .prufer-steps::-webkit-scrollbar-thumb {
             background: var(--primary);
             border-radius: 10px;
         }
 
         .sidebar::-webkit-scrollbar-thumb:hover,
-        #adjacency-matrix::-webkit-scrollbar-thumb:hover {
+        #adjacency-matrix::-webkit-scrollbar-thumb:hover,
+        .prufer-steps::-webkit-scrollbar-thumb:hover {
             background: var(--secondary);
         }
 
@@ -530,7 +830,7 @@
             font-weight: bold;
             pointer-events: none;
             z-index: 1000;
-            box-shadow: 0 0 15px var(--primary);
+            box-shadow: 0 0 20px var(--primary);
             transition: transform 0.1s ease;
         }
 
@@ -599,12 +899,24 @@
                     <span class="graph-stat-value" id="graph-order">0</span>
                 </div>
                 <div class="graph-stat">
-                    <span class="graph-stat-label">درجة البيان:</span>
-                    <span class="graph-stat-value" id="graph-degree">0</span>
+                    <span class="graph-stat-label">عدد الوصلات:</span>
+                    <span class="graph-stat-value" id="graph-edges">0</span>
                 </div>
                 <div class="graph-stat">
-                    <span class="graph-stat-label">قابل للحل:</span>
-                    <span class="graph-stat-value" id="graph-solvable">نعم</span>
+                    <span class="graph-stat-label">متصل:</span>
+                    <span class="graph-stat-value" id="graph-connected">لا</span>
+                </div>
+                <div class="graph-stat">
+                    <span class="graph-stat-label">أويليري:</span>
+                    <span class="graph-stat-value" id="graph-eulerian">لا</span>
+                </div>
+                <div class="graph-stat">
+                    <span class="graph-stat-label">هاميلتوني:</span>
+                    <span class="graph-stat-value" id="graph-hamiltonian">لا</span>
+                </div>
+                <div class="graph-stat">
+                    <span class="graph-stat-label">شجرة:</span>
+                    <span class="graph-stat-value" id="graph-tree">لا</span>
                 </div>
             </div>
 
@@ -618,6 +930,9 @@
                 </button>
                 <button id="complement-btn">
                     <i class="fas fa-code-branch"></i> البيان المتتم
+                </button>
+                <button id="prufer-btn">
+                    <i class="fas fa-code"></i> ترميز بروفير
                 </button>
                 <button id="clear-btn">
                     <i class="fas fa-trash"></i> مسح الكل
@@ -637,17 +952,38 @@
         </div>
     </div>
 
+    <!-- طبقة الحماية -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- نافذة إدخال وزن الوصلة -->
+    <div class="weight-input-container" id="weight-input-container">
+        <h3><i class="fas fa-weight-hanging"></i> إدخال وزن الوصلة</h3>
+        <p id="weight-nodes">بين العقدتين: <span id="node1" class="node-name">-</span> ↔ <span id="node2" class="node-name">-</span></p>
+        <input type="number" class="weight-input" id="weight-input" min="1" max="100" value="1" autofocus>
+        <div class="weight-buttons">
+            <button class="weight-btn confirm" id="weight-confirm">
+                <i class="fas fa-check"></i> تأكيد (الوزن: <span id="weight-value">1</span>)
+            </button>
+            <button class="weight-btn cancel" id="weight-cancel">
+                <i class="fas fa-times"></i> إلغاء
+            </button>
+        </div>
+    </div>
+
+    <!-- نافذة ترميز بروفير -->
+    <div class="prufer-container" id="prufer-container">
+        <h3><i class="fas fa-code"></i> ترميز بروفير</h3>
+        <div class="prufer-code" id="prufer-code">-</div>
+        <div class="prufer-steps" id="prufer-steps"></div>
+        <div class="prufer-buttons">
+            <button class="weight-btn confirm" id="prufer-close">
+                <i class="fas fa-times"></i> إغلاق
+            </button>
+        </div>
+    </div>
+
     <!-- مؤشر السحب -->
     <div class="drag-indicator" style="display: none;"></div>
-
-    <!-- SVG للأسهم -->
-    <svg style="position: absolute; width: 0; height: 0;">
-        <defs>
-            <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                <polygon points="0 0, 10 3.5, 0 7" fill="#4895ef"/>
-            </marker>
-        </defs>
-    </svg>
 
     <script>
         // حالة التطبيق
@@ -659,14 +995,16 @@
             nodeNames: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'],
             isDraggingNode: false,
             dragNode: null,
-            dragOffsetX: 0,
-            dragOffsetY: 0,
-            activeTouch: null,
+            dragStartX: 0,
+            dragStartY: 0,
             isAddingNode: false,
             lastTapTime: 0,
             lastTapTarget: null,
             doubleTapDelay: 300,
-            isRunningAlgorithm: false
+            isRunningAlgorithm: false,
+            pendingEdge: null,
+            edgeToUpdate: null,
+            isWeightDialogOpen: false
         };
 
         // العناصر الرئيسية
@@ -675,6 +1013,19 @@
         const matrixContainer = document.getElementById('adjacency-matrix');
         const selectedNodeInfo = document.getElementById('selected-node-info');
         const dragIndicator = document.querySelector('.drag-indicator');
+        const weightInputContainer = document.getElementById('weight-input-container');
+        const weightInput = document.getElementById('weight-input');
+        const weightNodes = document.getElementById('weight-nodes');
+        const node1Span = document.getElementById('node1');
+        const node2Span = document.getElementById('node2');
+        const weightValueSpan = document.getElementById('weight-value');
+        const weightConfirmBtn = document.getElementById('weight-confirm');
+        const weightCancelBtn = document.getElementById('weight-cancel');
+        const pruferContainer = document.getElementById('prufer-container');
+        const pruferCode = document.getElementById('prufer-code');
+        const pruferSteps = document.getElementById('prufer-steps');
+        const pruferCloseBtn = document.getElementById('prufer-close');
+        const overlay = document.getElementById('overlay');
 
         // تهيئة اللوحة
         function initCanvas() {
@@ -695,12 +1046,9 @@
         // إعداد مستمعي الأحداث
         function setupEventListeners() {
             // أحداث العقد الجانبية
-            document.querySelectorAll('.node-item').forEach(item => {
-                item.addEventListener('touchstart', handleNodeTouchStart, { passive: false });
-                item.addEventListener('touchmove', handleNodeTouchMove, { passive: false });
-                item.addEventListener('touchend', handleNodeTouchEnd, { passive: false });
-                item.addEventListener('mousedown', handleNodeMouseDown);
-            });
+            const nodeItem = document.querySelector('.node-item');
+            nodeItem.addEventListener('touchstart', handleNodeTouchStart, { passive: false });
+            nodeItem.addEventListener('mousedown', handleNodeMouseDown);
 
             // أحداث اللوحة
             canvas.addEventListener('touchstart', handleCanvasTouchStart, { passive: false });
@@ -712,7 +1060,6 @@
             canvas.addEventListener('mousemove', handleCanvasMouseMove);
             canvas.addEventListener('mouseup', handleCanvasMouseUp);
             canvas.addEventListener('mouseleave', handleCanvasMouseUp);
-            canvas.addEventListener('click', handleCanvasClick);
             canvas.addEventListener('contextmenu', handleRightClick);
 
             document.addEventListener('mousemove', handleDocumentMouseMove);
@@ -722,7 +1069,51 @@
             document.getElementById('dfs-btn').addEventListener('click', runDFS);
             document.getElementById('bfs-btn').addEventListener('click', runBFS);
             document.getElementById('complement-btn').addEventListener('click', createComplement);
+            document.getElementById('prufer-btn').addEventListener('click', generatePruferCode);
             document.getElementById('clear-btn').addEventListener('click', clearGraph);
+
+            // أحداث نافذة إدخال الوزن
+            weightConfirmBtn.addEventListener('click', confirmWeight);
+            weightCancelBtn.addEventListener('click', cancelWeight);
+            weightInput.addEventListener('input', function() {
+                weightValueSpan.textContent = this.value || '1';
+            });
+            weightInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    confirmWeight();
+                }
+            });
+
+            // أحداث نافذة ترميز بروفير
+            pruferCloseBtn.addEventListener('click', function() {
+                closePruferDialog();
+            });
+
+            // إغلاق النوافذ عند النقر على طبقة الحماية
+            overlay.addEventListener('click', function(e) {
+                if (weightInputContainer.classList.contains('active')) {
+                    cancelWeight();
+                }
+                if (pruferContainer.classList.contains('active')) {
+                    closePruferDialog();
+                }
+            });
+
+            // منع إغلاق النوافذ عند النقر داخلها
+            weightInputContainer.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+
+            pruferContainer.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+
+            // منع السلوك الافتراضي لبعض الأحداث
+            document.addEventListener('contextmenu', function(e) {
+                if (e.target === canvas) {
+                    e.preventDefault();
+                }
+            });
         }
 
         // توليد اسم عقدة جديد
@@ -748,9 +1139,9 @@
                 const neighbors = [];
                 state.edges.forEach(edge => {
                     if (edge.source === state.selectedNode) {
-                        neighbors.push(edge.target.name);
+                        neighbors.push(`${edge.target.name} (وزن: ${edge.weight})`);
                     } else if (edge.target === state.selectedNode) {
-                        neighbors.push(edge.source.name);
+                        neighbors.push(`${edge.source.name} (وزن: ${edge.weight})`);
                     }
                 });
                 
@@ -766,37 +1157,326 @@
             // رتبة البيان (عدد العقد)
             document.getElementById('graph-order').textContent = state.nodes.length;
             
-            // درجة البيان (أعلى درجة عقدة)
-            let maxDegree = 0;
-            state.nodes.forEach(node => {
+            // عدد الوصلات
+            document.getElementById('graph-edges').textContent = state.edges.length;
+            
+            // التحقق من اتصال البيان
+            const isConnected = checkGraphConnected();
+            const connectedElement = document.getElementById('graph-connected');
+            connectedElement.textContent = isConnected ? 'نعم' : 'لا';
+            connectedElement.className = 'graph-stat-value ' + (isConnected ? 'connected' : 'disconnected');
+            
+            // التحقق من البيان الأويليري
+            const isEulerian = checkEulerian();
+            const eulerianElement = document.getElementById('graph-eulerian');
+            eulerianElement.textContent = isEulerian ? 'نعم' : 'لا';
+            eulerianElement.className = 'graph-stat-value ' + (isEulerian ? 'yes' : 'no');
+            
+            // التحقق من البيان الهاميلتوني
+            const isHamiltonian = checkHamiltonian();
+            const hamiltonianElement = document.getElementById('graph-hamiltonian');
+            hamiltonianElement.textContent = isHamiltonian ? 'نعم' : 'لا';
+            hamiltonianElement.className = 'graph-stat-value ' + (isHamiltonian ? 'yes' : 'no');
+            
+            // التحقق إذا كان البيان شجرة
+            const isTree = checkIsTree();
+            const treeElement = document.getElementById('graph-tree');
+            treeElement.textContent = isTree ? 'نعم' : 'لا';
+            treeElement.className = 'graph-stat-value ' + (isTree ? 'yes' : 'no');
+        }
+
+        // التحقق من اتصال البيان
+        function checkGraphConnected() {
+            if (state.nodes.length === 0) return false;
+            
+            const visited = new Set();
+            const stack = [state.nodes[0]];
+            
+            while (stack.length > 0) {
+                const currentNode = stack.pop();
+                
+                if (!visited.has(currentNode)) {
+                    visited.add(currentNode);
+                    
+                    state.edges.forEach(edge => {
+                        if (edge.source === currentNode && !visited.has(edge.target)) {
+                            stack.push(edge.target);
+                        } else if (edge.target === currentNode && !visited.has(edge.source)) {
+                            stack.push(edge.source);
+                        }
+                    });
+                }
+            }
+            
+            return visited.size === state.nodes.length;
+        }
+
+        // التحقق من البيان الأويليري
+        function checkEulerian() {
+            if (state.nodes.length === 0) return false;
+            
+            // شروط البيان الأويليري:
+            // 1. البيان متصل
+            // 2. جميع العقد لها درجة زوجية
+            
+            if (!checkGraphConnected()) return false;
+            
+            for (const node of state.nodes) {
                 const degree = state.edges.filter(edge => 
                     edge.source === node || edge.target === node
                 ).length;
-                maxDegree = Math.max(maxDegree, degree);
-            });
-            document.getElementById('graph-degree').textContent = maxDegree;
-            
-            // قابلية الحل (البيان الأويلري - جميع العقد لها درجة زوجية)
-            let isSolvable = true;
-            if (state.nodes.length > 0) {
-                state.nodes.forEach(node => {
-                    const degree = state.edges.filter(edge => 
-                        edge.source === node || edge.target === node
-                    ).length;
-                    if (degree % 2 !== 0) {
-                        isSolvable = false;
-                    }
-                });
+                
+                if (degree % 2 !== 0) {
+                    return false;
+                }
             }
             
-            const solvableElement = document.getElementById('graph-solvable');
-            solvableElement.textContent = isSolvable ? 'نعم' : 'لا';
-            solvableElement.className = 'graph-stat-value ' + (isSolvable ? 'solvable' : 'not-solvable');
+            return true;
+        }
+
+        // التحقق من البيان الهاميلتوني
+        function checkHamiltonian() {
+            if (state.nodes.length < 3) return false;
+            
+            // معيار Ore: إذا كان مجموع درجات أي عقدتين غير متجاورتين ≥ n
+            // فإن البيان هاميلتوني
+            const n = state.nodes.length;
+            
+            for (let i = 0; i < n; i++) {
+                for (let j = i + 1; j < n; j++) {
+                    const node1 = state.nodes[i];
+                    const node2 = state.nodes[j];
+                    
+                    // التحقق إذا كانت العقدتان متجاورتين
+                    const areAdjacent = state.edges.some(edge => 
+                        (edge.source === node1 && edge.target === node2) ||
+                        (edge.source === node2 && edge.target === node1)
+                    );
+                    
+                    if (!areAdjacent) {
+                        const degree1 = state.edges.filter(edge => 
+                            edge.source === node1 || edge.target === node1
+                        ).length;
+                        
+                        const degree2 = state.edges.filter(edge => 
+                            edge.source === node2 || edge.target === node2
+                        ).length;
+                        
+                        if (degree1 + degree2 < n) {
+                            return false;
+                        }
+                    }
+                }
+            }
+            
+            return true;
+        }
+
+        // التحقق إذا كان البيان شجرة
+        function checkIsTree() {
+            // شروط الشجرة:
+            // 1. البيان متصل
+            // 2. عدد الوصلات = عدد العقد - 1
+            // 3. لا يوجد دورات
+            
+            if (!checkGraphConnected()) return false;
+            
+            if (state.edges.length !== state.nodes.length - 1) return false;
+            
+            return true;
+        }
+
+        // فتح نافذة إدخال وزن الوصلة
+        function openWeightInput(source, target, edgeToUpdate = null) {
+            // إغلاق أي نافذة مفتوحة حالياً
+            if (state.isWeightDialogOpen) return;
+            
+            state.pendingEdge = { source, target };
+            state.edgeToUpdate = edgeToUpdate;
+            state.isWeightDialogOpen = true;
+            
+            node1Span.textContent = source.name;
+            node2Span.textContent = target.name;
+            
+            // إذا كنا نحدث وصلة موجودة، نعرض وزنها الحالي
+            if (edgeToUpdate) {
+                weightInput.value = edgeToUpdate.weight;
+            } else {
+                weightInput.value = "1";
+            }
+            
+            weightValueSpan.textContent = weightInput.value;
+            
+            // إظهار النافذة وطبقة الحماية
+            overlay.classList.add('active');
+            weightInputContainer.classList.add('active');
+            
+            // التركيز على حقل الإدخال وتحديد النص
+            setTimeout(() => {
+                weightInput.focus();
+                weightInput.select();
+            }, 100);
+        }
+
+        // تأكيد وزن الوصلة
+        function confirmWeight() {
+            if (!state.pendingEdge || !state.isWeightDialogOpen) return;
+            
+            const weight = parseInt(weightInput.value) || 1;
+            
+            if (state.edgeToUpdate) {
+                // تحديث وزن الوصلة الحالية
+                state.edgeToUpdate.weight = weight;
+            } else {
+                // إضافة وصلة جديدة
+                addEdge(state.pendingEdge.source, state.pendingEdge.target, weight);
+            }
+            
+            closeWeightDialog();
+            
+            updateAdjacencyMatrix();
+            updateGraphInfo();
+            draw();
+        }
+
+        // إغلاق نافذة الوزن
+        function closeWeightDialog() {
+            overlay.classList.remove('active');
+            weightInputContainer.classList.remove('active');
+            state.pendingEdge = null;
+            state.edgeToUpdate = null;
+            state.isWeightDialogOpen = false;
+            state.selectedNode = null;
+            updateSelectedNodeInfo();
+        }
+
+        // إلغاء وزن الوصلة
+        function cancelWeight() {
+            if (!state.isWeightDialogOpen) return;
+            closeWeightDialog();
+            draw();
+        }
+
+        // إغلاق نافذة ترميز بروفير
+        function closePruferDialog() {
+            overlay.classList.remove('active');
+            pruferContainer.classList.remove('active');
+        }
+
+        // توليد ترميز بروفير للشجرة
+        function generatePruferCode() {
+            // التحقق إذا كان البيان شجرة
+            if (!checkIsTree()) {
+                alert("ترميز بروفير ينطبق فقط على الأشجار المتصلة التي تحتوي على n-1 وصلة.");
+                return;
+            }
+            
+            if (state.nodes.length < 2) {
+                alert("يجب أن يكون هناك على الأقل عقدتان لتوليد ترميز بروفير.");
+                return;
+            }
+            
+            // إنشاء نسخة من العقد والوصلات
+            const nodesCopy = state.nodes.map(node => ({ ...node, id: node.id, name: node.name }));
+            const edgesCopy = state.edges.map(edge => ({ ...edge }));
+            
+            const pruferSequence = [];
+            const steps = [];
+            
+            // خريطة لربط العقد بأسمائها
+            const nodeMap = new Map();
+            nodesCopy.forEach(node => nodeMap.set(node.id, node.name));
+            
+            // بناء قائمة الجوار
+            const adjacencyList = new Map();
+            nodesCopy.forEach(node => adjacencyList.set(node.id, []));
+            edgesCopy.forEach(edge => {
+                adjacencyList.get(edge.source.id).push(edge.target.id);
+                adjacencyList.get(edge.target.id).push(edge.source.id);
+            });
+            
+            let stepCounter = 1;
+            
+            // خوارزمية بروفير
+            while (nodesCopy.length > 2) {
+                // العثور على العقدة ذات الدرجة 1 (ورقة) بأصغر اسم
+                let leafNode = null;
+                let leafIndex = -1;
+                
+                for (let i = 0; i < nodesCopy.length; i++) {
+                    const node = nodesCopy[i];
+                    if (adjacencyList.get(node.id).length === 1) {
+                        if (!leafNode || node.name < leafNode.name) {
+                            leafNode = node;
+                            leafIndex = i;
+                        }
+                    }
+                }
+                
+                if (!leafNode) break;
+                
+                // العثور على الجار الوحيد للورقة
+                const neighborId = adjacencyList.get(leafNode.id)[0];
+                const neighborNode = nodesCopy.find(n => n.id === neighborId);
+                
+                // إضافة اسم الجار إلى تسلسل بروفير
+                pruferSequence.push(neighborNode.name);
+                
+                // تسجيل الخطوة
+                steps.push(`الخطوة ${stepCounter}: إزالة الورقة ${leafNode.name}، إضافة ${neighborNode.name} إلى التسلسل`);
+                stepCounter++;
+                
+                // إزالة الورقة
+                nodesCopy.splice(leafIndex, 1);
+                
+                // تحديث قوائم التجاور
+                adjacencyList.delete(leafNode.id);
+                
+                // إزالة الورقة من قائمة جوار الجار
+                const neighborAdj = adjacencyList.get(neighborId);
+                const leafIndexInNeighbor = neighborAdj.indexOf(leafNode.id);
+                if (leafIndexInNeighbor > -1) {
+                    neighborAdj.splice(leafIndexInNeighbor, 1);
+                }
+            }
+            
+            // عرض النتائج
+            pruferCode.textContent = pruferSequence.length > 0 ? pruferSequence.join(" ") : "(فارغ)";
+            
+            // عرض الخطوات
+            pruferSteps.innerHTML = '';
+            steps.forEach(step => {
+                const stepDiv = document.createElement('div');
+                stepDiv.className = 'prufer-step';
+                stepDiv.textContent = step;
+                pruferSteps.appendChild(stepDiv);
+            });
+            
+            // إضافة معلومات إضافية
+            if (steps.length === 0) {
+                const infoDiv = document.createElement('div');
+                infoDiv.className = 'prufer-step';
+                infoDiv.textContent = "الشجرة تحتوي على عقدتين فقط، ترميز بروفير فارغ";
+                pruferSteps.appendChild(infoDiv);
+            }
+            
+            const infoDiv = document.createElement('div');
+            infoDiv.className = 'prufer-step';
+            infoDiv.textContent = `الترميز النهائي: ${pruferSequence.length > 0 ? pruferSequence.join(" ") : "فارغ"}`;
+            infoDiv.style.fontWeight = 'bold';
+            infoDiv.style.color = '#4cc9f0';
+            pruferSteps.appendChild(infoDiv);
+            
+            // إظهار النافذة
+            overlay.classList.add('active');
+            pruferContainer.classList.add('active');
         }
 
         // معالجة النقر على العقد الجانبية (للكمبيوتر)
         function handleNodeMouseDown(e) {
             e.preventDefault();
+            if (state.isWeightDialogOpen) return;
+            
             state.isAddingNode = true;
             const nodeName = generateNodeName();
             dragIndicator.textContent = nodeName;
@@ -830,56 +1510,27 @@
         // معالجة لمس العقد الجانبية
         function handleNodeTouchStart(e) {
             e.preventDefault();
-            if (state.activeTouch) return;
+            if (state.isWeightDialogOpen) return;
             
+            state.isAddingNode = true;
             const touch = e.touches[0];
             const nodeName = generateNodeName();
-            state.activeTouch = {
-                type: 'sidebar',
-                nodeName: nodeName,
-                identifier: touch.identifier
-            };
-
             dragIndicator.textContent = nodeName;
             dragIndicator.style.display = 'flex';
             updateDragIndicator(touch.clientX, touch.clientY);
         }
 
-        // معالجة حركة لمس العقد الجانبية
-        function handleNodeTouchMove(e) {
-            if (!state.activeTouch || state.activeTouch.type !== 'sidebar') return;
-            
-            const touch = Array.from(e.touches).find(t => t.identifier === state.activeTouch.identifier);
-            if (!touch) return;
-            
-            e.preventDefault();
-            updateDragIndicator(touch.clientX, touch.clientY);
-        }
-
-        // معالجة نهاية لمس العقد الجانبية
-        function handleNodeTouchEnd(e) {
-            if (!state.activeTouch || state.activeTouch.type !== 'sidebar') return;
-            
-            const touch = e.changedTouches[0];
-            if (touch.identifier !== state.activeTouch.identifier) return;
-
-            dragIndicator.style.display = 'none';
-            const rect = canvas.getBoundingClientRect();
-            const x = touch.clientX - rect.left;
-            const y = touch.clientY - rect.top;
-            
-            if (x >= 0 && x <= canvas.width && y >= 0 && y <= canvas.height) {
-                addNode(state.activeTouch.nodeName, x, y);
-            }
-            
-            state.activeTouch = null;
+        // تحديث مؤشر السحب
+        function updateDragIndicator(x, y) {
+            dragIndicator.style.left = (x - 25) + 'px';
+            dragIndicator.style.top = (y - 25) + 'px';
         }
 
         // معالجة لمس اللوحة
         function handleCanvasTouchStart(e) {
-            e.preventDefault();
-            if (state.activeTouch) return;
+            if (state.isWeightDialogOpen) return;
             
+            e.preventDefault();
             const touch = e.touches[0];
             const rect = canvas.getBoundingClientRect();
             const x = touch.clientX - rect.left;
@@ -914,18 +1565,26 @@
             state.lastTapTarget = clickedNode || clickedEdge;
             
             if (clickedNode) {
-                state.activeTouch = {
-                    type: 'canvas',
-                    node: clickedNode,
-                    identifier: touch.identifier,
-                    startX: x,
-                    startY: y,
-                    hasMoved: false
-                };
+                // بدء سحب العقدة
+                state.isDraggingNode = true;
+                state.dragNode = clickedNode;
+                state.dragStartX = x;
+                state.dragStartY = y;
                 
-                // لا نقوم بالتحديد أو الربط هنا، ننتظر touchend
+                // إذا كان هناك عقدة محددة مسبقاً ونحن ننقر على عقدة أخرى
+                if (state.selectedNode && state.selectedNode !== clickedNode) {
+                    openWeightInput(state.selectedNode, clickedNode);
+                } else {
+                    // تحديد العقدة
+                    state.selectedNode = clickedNode;
+                    updateSelectedNodeInfo();
+                    draw();
+                }
+            } else if (clickedEdge) {
+                // تعديل وزن الوصلة
+                openWeightInput(clickedEdge.source, clickedEdge.target, clickedEdge);
             } else {
-                // النقر على منطقة فارغة - إلغاء التحديد
+                // النقر على منطقة فارغة
                 state.selectedNode = null;
                 updateSelectedNodeInfo();
                 draw();
@@ -934,76 +1593,90 @@
 
         // معالجة حركة اللمس على اللوحة
         function handleCanvasTouchMove(e) {
-            if (!state.activeTouch || state.activeTouch.type !== 'canvas') return;
-            
-            const touch = Array.from(e.touches).find(t => t.identifier === state.activeTouch.identifier);
-            if (!touch) return;
-            
-            e.preventDefault();
-            
-            const rect = canvas.getBoundingClientRect();
-            const x = touch.clientX - rect.left;
-            const y = touch.clientY - rect.top;
-            
-            // التحقق من الحركة
-            const moveDistance = Math.sqrt(
-                Math.pow(x - state.activeTouch.startX, 2) + 
-                Math.pow(y - state.activeTouch.startY, 2)
-            );
-            
-            if (moveDistance > 5) {
-                state.activeTouch.hasMoved = true;
-            }
-            
-            // السماح بسحب العقدة
-            if (state.activeTouch.node && state.activeTouch.hasMoved) {
-                state.activeTouch.node.x = x;
-                state.activeTouch.node.y = y;
+            if (state.isDraggingNode && state.dragNode) {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const rect = canvas.getBoundingClientRect();
+                const x = touch.clientX - rect.left;
+                const y = touch.clientY - rect.top;
+                
+                state.dragNode.x = x;
+                state.dragNode.y = y;
                 draw();
             }
         }
 
         // معالجة نهاية لمس اللوحة
         function handleCanvasTouchEnd(e) {
-            if (!state.activeTouch || state.activeTouch.type !== 'canvas') return;
-            
-            const touch = Array.from(e.changedTouches).find(t => t.identifier === state.activeTouch.identifier);
-            if (!touch) return;
-            
-            // إذا لم تكن هناك حركة، نعتبرها نقرة
-            if (!state.activeTouch.hasMoved && state.activeTouch.node) {
-                const clickedNode = state.activeTouch.node;
-                
-                // تحديد العقدة أو ربطها
-                if (state.selectedNode && state.selectedNode !== clickedNode) {
-                    addEdge(state.selectedNode, clickedNode);
-                    state.selectedNode = null;
-                } else {
-                    state.selectedNode = clickedNode;
-                }
-                
-                updateSelectedNodeInfo();
-                draw();
+            if (state.isDraggingNode) {
+                state.isDraggingNode = false;
+                state.dragNode = null;
+                updateAdjacencyMatrix();
+                updateGraphInfo();
             }
-            
-            updateAdjacencyMatrix();
-            updateGraphInfo();
-            state.activeTouch = null;
         }
 
         // معالجة أحداث الماوس للوحة الرسم
         function handleCanvasMouseDown(e) {
+            if (state.isWeightDialogOpen) return;
+            
+            e.preventDefault();
             const rect = canvas.getBoundingClientRect();
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
             
             const clickedNode = findNodeAt(x, y);
+            const clickedEdge = findEdgeAt(x, y);
+            
+            // التحقق من النقر المزدوج
+            const currentTime = Date.now();
+            const timeDiff = currentTime - state.lastTapTime;
+            
+            if (timeDiff < state.doubleTapDelay) {
+                // نقرة مزدوجة
+                if (clickedNode && state.lastTapTarget === clickedNode) {
+                    showDoubleTapIndicator(e.clientX, e.clientY);
+                    deleteNode(clickedNode);
+                    state.lastTapTime = 0;
+                    state.lastTapTarget = null;
+                    return;
+                } else if (clickedEdge && state.lastTapTarget === clickedEdge) {
+                    showDoubleTapIndicator(e.clientX, e.clientY);
+                    deleteEdge(clickedEdge);
+                    state.lastTapTime = 0;
+                    state.lastTapTarget = null;
+                    return;
+                }
+            }
+            
+            // نقرة واحدة
+            state.lastTapTime = currentTime;
+            state.lastTapTarget = clickedNode || clickedEdge;
             
             if (clickedNode) {
+                // بدء سحب العقدة
                 state.isDraggingNode = true;
                 state.dragNode = clickedNode;
-                state.dragOffsetX = x - clickedNode.x;
-                state.dragOffsetY = y - clickedNode.y;
+                state.dragStartX = x;
+                state.dragStartY = y;
+                
+                // إذا كان هناك عقدة محددة مسبقاً ونحن ننقر على عقدة أخرى
+                if (state.selectedNode && state.selectedNode !== clickedNode) {
+                    openWeightInput(state.selectedNode, clickedNode);
+                } else {
+                    // تحديد العقدة
+                    state.selectedNode = clickedNode;
+                    updateSelectedNodeInfo();
+                    draw();
+                }
+            } else if (clickedEdge) {
+                // تعديل وزن الوصلة
+                openWeightInput(clickedEdge.source, clickedEdge.target, clickedEdge);
+            } else {
+                // النقر على منطقة فارغة
+                state.selectedNode = null;
+                updateSelectedNodeInfo();
+                draw();
             }
         }
 
@@ -1013,8 +1686,8 @@
                 const x = e.clientX - rect.left;
                 const y = e.clientY - rect.top;
                 
-                state.dragNode.x = x - state.dragOffsetX;
-                state.dragNode.y = y - state.dragOffsetY;
+                state.dragNode.x = x;
+                state.dragNode.y = y;
                 draw();
             }
         }
@@ -1028,33 +1701,10 @@
             }
         }
 
-        // معالجة النقر على اللوحة
-        function handleCanvasClick(e) {
-            const rect = canvas.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            
-            const clickedNode = findNodeAt(x, y);
-            
-            if (clickedNode) {
-                if (state.selectedNode && state.selectedNode !== clickedNode) {
-                    addEdge(state.selectedNode, clickedNode);
-                    state.selectedNode = null;
-                } else {
-                    state.selectedNode = state.selectedNode === clickedNode ? null : clickedNode;
-                }
-                
-                updateSelectedNodeInfo();
-            } else {
-                state.selectedNode = null;
-                updateSelectedNodeInfo();
-            }
-            
-            draw();
-        }
-
         // معالجة النقر بالزر الأيمن
         function handleRightClick(e) {
+            if (state.isWeightDialogOpen) return;
+            
             e.preventDefault();
             
             const rect = canvas.getBoundingClientRect();
@@ -1084,12 +1734,6 @@
             setTimeout(() => {
                 document.body.removeChild(indicator);
             }, 600);
-        }
-
-        // تحديث مؤشر السحب
-        function updateDragIndicator(x, y) {
-            dragIndicator.style.left = (x - 25) + 'px';
-            dragIndicator.style.top = (y - 25) + 'px';
         }
 
         // إضافة عقدة جديدة
@@ -1167,8 +1811,9 @@
             return Math.sqrt(dx * dx + dy * dy);
         }
 
-        // إضافة وصلة
-        function addEdge(source, target) {
+        // إضافة وصلة مع وزن
+        function addEdge(source, target, weight = 1) {
+            // التحقق إذا كانت الوصلة موجودة بالفعل
             const existingEdge = state.edges.find(edge => 
                 (edge.source === source && edge.target === target) || 
                 (edge.source === target && edge.target === source)
@@ -1178,11 +1823,23 @@
                 state.edges.push({
                     source: source,
                     target: target,
+                    weight: weight,
                     color: '#4895ef'
                 });
-                updateAdjacencyMatrix();
-                updateGraphInfo();
+                
+                // إضافة تأثير مرئي للعقدتين المتصلتين
+                source.color = '#4cc9f0';
+                target.color = '#4cc9f0';
+                
+                setTimeout(() => {
+                    source.color = '#4361ee';
+                    target.color = '#4361ee';
+                    draw();
+                }, 500);
             }
+            
+            updateSelectedNodeInfo();
+            draw();
         }
 
         // حذف عقدة
@@ -1211,7 +1868,7 @@
             draw();
         }
 
-        // تحديث مصفوفة التجاور
+        // تحديث مصفوفة التجاور مع الأوزان
         function updateAdjacencyMatrix() {
             if (state.nodes.length === 0) {
                 matrixContainer.innerHTML = '<p>لا توجد عقد في البيان بعد</p>';
@@ -1228,8 +1885,8 @@
             state.edges.forEach(edge => {
                 const i = state.nodes.indexOf(edge.source);
                 const j = state.nodes.indexOf(edge.target);
-                matrix[i][j] = 1;
-                matrix[j][i] = 1;
+                matrix[i][j] = edge.weight;
+                matrix[j][i] = edge.weight;
             });
             
             let html = '<table class="matrix-table">';
@@ -1245,7 +1902,7 @@
                     const value = matrix[i][j];
                     const isDiagonal = i === j;
                     const cellClass = isDiagonal ? 'diagonal' : '';
-                    const color = value === 1 ? 'var(--success)' : 'transparent';
+                    const color = value > 0 ? 'rgba(76, 201, 240, 0.5)' : 'transparent';
                     html += `<td class="${cellClass}" style="background-color: ${color};">${value}</td>`;
                 }
                 html += '</tr>';
@@ -1259,10 +1916,12 @@
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
+            // رسم الوصلات أولاً
             state.edges.forEach(edge => {
                 drawEdge(edge);
             });
             
+            // ثم رسم العقد
             state.nodes.forEach(node => {
                 drawNode(node);
             });
@@ -1276,37 +1935,67 @@
             if (node === state.selectedNode) {
                 ctx.fillStyle = '#f8961e';
                 ctx.shadowColor = '#f8961e';
-                ctx.shadowBlur = 15;
+                ctx.shadowBlur = 20;
             } else {
                 ctx.fillStyle = node.color;
                 ctx.shadowColor = node.color;
-                ctx.shadowBlur = 10;
+                ctx.shadowBlur = 15;
             }
             
             ctx.fill();
             ctx.shadowBlur = 0;
             
-            ctx.fillStyle = 'white';
-            ctx.font = 'bold 16px Arial';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(node.name, node.x, node.y);
-        }
-
-        // رسم وصلة
-        function drawEdge(edge) {
-            const { source, target } = edge;
-            
+            // رسم حدود العقدة
             ctx.beginPath();
-            ctx.moveTo(source.x, source.y);
-            ctx.lineTo(target.x, target.y);
-            ctx.strokeStyle = edge.color;
+            ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
+            ctx.strokeStyle = 'white';
             ctx.lineWidth = 3;
             ctx.stroke();
             
-            const midX = (source.x + target.x) / 2;
-            const midY = (source.y + target.y) / 2;
-            const angle = Math.atan2(target.y - source.y, target.x - source.x);
+            // كتابة اسم العقدة
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 18px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(node.name, node.x, node.y);
+            
+            // إذا كانت العقدة محددة، إضافة تأثير إضافي
+            if (node === state.selectedNode) {
+                ctx.beginPath();
+                ctx.arc(node.x, node.y, node.radius + 5, 0, Math.PI * 2);
+                ctx.strokeStyle = '#f8961e';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5, 5]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+        }
+
+        // رسم وصلة مع الوزن
+        function drawEdge(edge) {
+            const { source, target, weight } = edge;
+            
+            // حساب الزاوية بين العقدتين
+            const dx = target.x - source.x;
+            const dy = target.y - source.y;
+            const angle = Math.atan2(dy, dx);
+            
+            // حساب نقاط البداية والنهاية مع تعديل لنصف قطر العقد
+            const startX = source.x + Math.cos(angle) * source.radius;
+            const startY = source.y + Math.sin(angle) * source.radius;
+            const endX = target.x - Math.cos(angle) * target.radius;
+            const endY = target.y - Math.sin(angle) * target.radius;
+            
+            ctx.beginPath();
+            ctx.moveTo(startX, startY);
+            ctx.lineTo(endX, endY);
+            ctx.strokeStyle = edge.color;
+            ctx.lineWidth = 4;
+            ctx.stroke();
+            
+            // رسم رأس السهم
+            const midX = (startX + endX) / 2;
+            const midY = (startY + endY) / 2;
             
             ctx.save();
             ctx.translate(midX, midY);
@@ -1314,18 +2003,42 @@
             
             ctx.beginPath();
             ctx.moveTo(0, 0);
-            ctx.lineTo(-10, -5);
-            ctx.lineTo(-10, 5);
+            ctx.lineTo(-12, -6);
+            ctx.lineTo(-12, 6);
             ctx.closePath();
             ctx.fillStyle = edge.color;
             ctx.fill();
             
             ctx.restore();
+            
+            // رسم الوزن
+            const labelX = midX + Math.cos(angle + Math.PI/2) * 20;
+            const labelY = midY + Math.sin(angle + Math.PI/2) * 20;
+            
+            // خلفية للوزن
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+            ctx.beginPath();
+            ctx.arc(labelX, labelY, 15, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // حدود الوزن
+            ctx.beginPath();
+            ctx.arc(labelX, labelY, 15, 0, Math.PI * 2);
+            ctx.strokeStyle = edge.color;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            // نص الوزن
+            ctx.fillStyle = '#4cc9f0';
+            ctx.font = 'bold 16px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(weight, labelX, labelY);
         }
 
         // تشغيل خوارزمية DFS
         async function runDFS() {
-            if (state.nodes.length === 0 || state.isRunningAlgorithm) return;
+            if (state.nodes.length === 0 || state.isRunningAlgorithm || state.isWeightDialogOpen) return;
             
             state.isRunningAlgorithm = true;
             
@@ -1373,7 +2086,7 @@
 
         // تشغيل خوارزمية BFS
         async function runBFS() {
-            if (state.nodes.length === 0 || state.isRunningAlgorithm) return;
+            if (state.nodes.length === 0 || state.isRunningAlgorithm || state.isWeightDialogOpen) return;
             
             state.isRunningAlgorithm = true;
             
@@ -1412,7 +2125,7 @@
 
         // إنشاء البيان المتتم
         function createComplement() {
-            if (state.nodes.length === 0) return;
+            if (state.nodes.length === 0 || state.isWeightDialogOpen) return;
             
             const currentEdges = new Set();
             state.edges.forEach(edge => {
@@ -1437,6 +2150,7 @@
                 return !currentEdges.has(key);
             }).map(edge => ({
                 ...edge,
+                weight: 1,
                 color: '#4895ef'
             }));
             
@@ -1447,14 +2161,18 @@
 
         // مسح البيان بالكامل
         function clearGraph() {
-            state.nodes = [];
-            state.edges = [];
-            state.selectedNode = null;
-            state.nodeCounter = 0;
-            updateAdjacencyMatrix();
-            updateSelectedNodeInfo();
-            updateGraphInfo();
-            draw();
+            if (state.isWeightDialogOpen) return;
+            
+            if (confirm("هل تريد مسح البيان بالكامل؟")) {
+                state.nodes = [];
+                state.edges = [];
+                state.selectedNode = null;
+                state.nodeCounter = 0;
+                updateAdjacencyMatrix();
+                updateSelectedNodeInfo();
+                updateGraphInfo();
+                draw();
+            }
         }
 
         // بدء التطبيق
